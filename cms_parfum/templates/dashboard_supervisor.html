@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Supervisor | Alokasi & Verifikasi</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        .header { background-color: #ffc107; color: #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        .card h2 { color: #ffc107; }
+        .wo-table table, .inventory-table table { width: 100%; border-collapse: collapse; }
+        .wo-table th, .wo-table td, .inventory-table th, .inventory-table td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 0.9em; }
+        .status-baru { background-color: #f8d7da; }
+        .status-selesai { background-color: #d4edda; }
+        .btn { padding: 5px 10px; margin: 2px; border: none; border-radius: 3px; cursor: pointer; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .alert { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .alert-success { background-color: #d4edda; color: #155724; }
+        .alert-error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Dashboard Supervisor - Kontrol Pemeliharaan</h1>
+        <p>Manajemen WO baru, verifikasi penyelesaian, dan kontrol inventaris.</p>
+        <div style="float: right;">
+            <span>Supervisor: <span id="userName"></span></span>
+            <a href="/logout" style="color: #333; margin-left: 15px;">Logout</a>
+        </div>
+    </div>
+
+    <div id="alertArea"></div>
+
+    <div class="content-grid">
+        <div class="card wo-table">
+            <h2>📝 WO Baru & WO Selesai (Perlu Aksi)</h2>
+            
+            <h3>WO BARU (Perlu Alokasi Teknisi)</h3>
+            <table>
+                <thead>
+                    <tr><th>WO ID</th><th>Aset</th><th>Deskripsi</th><th>Prioritas</th><th>Teknisi</th><th>Aksi</th></tr>
+                </thead>
+                <tbody id="woNewTableBody">
+                    <tr><td colspan="6">Memuat data...</td></tr>
+                </tbody>
+            </table>
+            
+            <h3 style="margin-top: 20px;">WO SELESAI (Perlu Verifikasi & Penutupan)</h3>
+            <table>
+                <thead>
+                    <tr><th>WO ID</th><th>Aset</th><th>Teknisi</th><th>Waktu Pengerjaan</th><th>Aksi</th></tr>
+                </thead>
+                <tbody id="woCompletedTableBody">
+                    <tr><td colspan="5">Memuat data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="card inventory-table">
+            <h2>📦 Inventaris Kritis</h2>
+            <table>
+                <thead>
+                    <tr><th>Item</th><th>Stok</th><th>Min Stok</th><th>Status</th></tr>
+                </thead>
+                <tbody id="inventoryTableBody">
+                    <tr><td colspan="4">Memuat data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal untuk alokasi teknisi -->
+    <div id="assignModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
+        <div style="background: white; padding: 20px; border-radius: 8px; width: 300px;">
+            <h3>Alokasi Teknisi</h3>
+            <p>WO: <span id="modalWoId"></span></p>
+            <select id="technicianSelect" style="width: 100%; padding: 8px; margin: 10px 0;">
+                <option value="">Pilih Teknisi</option>
+            </select>
+            <div style="text-align: right; margin-top: 15px;">
+                <button onclick="closeAssignModal()" style="margin-right: 10px;">Batal</button>
+                <button onclick="assignTechnician()" style="background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 4px;">Alokasi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentWoId = null;
+        let technicians = [];
+
+        // Tampilkan info user
+        document.getElementById('userName').textContent = localStorage.getItem('username') || 'User';
+
+        async function loadNewWorkOrders() {
+            try {
+                const response = await fetch('/api/wo/new');
+                if (!response.ok) throw new Error('Gagal memuat WO baru');
+                
+                const woList = await response.json();
+                const tableBody = document.getElementById('woNewTableBody');
+                
+                tableBody.innerHTML = '';
+                if (woList.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="6" class="status-baru">Tidak ada WO baru</td></tr>';
+                    return;
+                }
+                
+                woList.forEach(wo => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = wo._id.substring(0, 8);
+                    row.insertCell().textContent = wo.asset_name;
+                    row.insertCell().textContent = wo.description.substring(0, 50) + '...';
+                    row.insertCell().textContent = wo.priority || 'Sedang';
+                    
+                    const techCell = row.insertCell();
+                    techCell.textContent = wo.assigned_to || '-';
+                    
+                    const actionCell = row.insertCell();
+                    if (!wo.assigned_to) {
+                        const btn = document.createElement('button');
+                        btn.textContent = 'Alokasi';
+                        btn.className = 'btn btn-primary';
+                        btn.onclick = () => openAssignModal(wo._id);
+                        actionCell.appendChild(btn);
+                    } else {
+                        actionCell.textContent = 'Sudah dialokasi';
+                    }
+                });
+            } catch (error) {
+                showAlert('Gagal memuat WO baru: ' + error.message, 'error');
+            }
+        }
+
+        async function loadCompletedWorkOrders() {
+            try {
+                const response = await fetch('/api/wo/completed');
+                if (!response.ok) throw new Error('Gagal memuat WO selesai');
+                
+                const woList = await response.json();
+                const tableBody = document.getElementById('woCompletedTableBody');
+                
+                tableBody.innerHTML = '';
+                if (woList.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="5" class="status-selesai">Tidak ada WO selesai</td></tr>';
+                    return;
+                }
+                
+                woList.forEach(wo => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = wo._id.substring(0, 8);
+                    row.insertCell().textContent = wo.asset_name;
+                    row.insertCell().textContent = wo.assigned_to;
+                    
+                    const timeCell = row.insertCell();
+                    if (wo.timestamp_created && wo.timestamp_completed) {
+                        const duration = (wo.timestamp_completed - wo.timestamp_created) / 60; // dalam menit
+                        timeCell.textContent = Math.round(duration) + ' menit';
+                    } else {
+                        timeCell.textContent = '-';
+                    }
+                    
+                    const actionCell = row.insertCell();
+                    const btn = document.createElement('button');
+                    btn.textContent = 'Verifikasi';
+                    btn.className = 'btn btn-success';
+                    btn.onclick = () => verifyWorkOrder(wo._id);
+                    actionCell.appendChild(btn);
+                });
+            } catch (error) {
+                showAlert('Gagal memuat WO selesai: ' + error.message, 'error');
+            }
+        }
+
+        async function loadInventory() {
+            try {
+                const response = await fetch('/api/inventory');
+                if (!response.ok) throw new Error('Gagal memuat inventory');
+                
+                const inventory = await response.json();
+                const tableBody = document.getElementById('inventoryTableBody');
+                
+                tableBody.innerHTML = '';
+                inventory.forEach(item => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = item.item_name;
+                    row.insertCell().textContent = item.current_stock;
+                    row.insertCell().textContent = item.min_stock;
+                    
+                    const statusCell = row.insertCell();
+                    statusCell.textContent = item.status;
+                    if (item.status === 'Rendah') {
+                        statusCell.style.color = 'red';
+                        statusCell.style.fontWeight = 'bold';
+                    }
+                });
+            } catch (error) {
+                showAlert('Gagal memuat inventory: ' + error.message, 'error');
+            }
+        }
+
+        async function loadTechnicians() {
+            try {
+                const response = await fetch('/api/technicians');
+                if (!response.ok) throw new Error('Gagal memuat daftar teknisi');
+                
+                technicians = await response.json();
+                const select = document.getElementById('technicianSelect');
+                
+                select.innerHTML = '<option value="">Pilih Teknisi</option>';
+                technicians.forEach(tech => {
+                    const option = document.createElement('option');
+                    option.value = tech.username;
+                    option.textContent = tech.name || tech.username;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                showAlert('Gagal memuat daftar teknisi: ' + error.message, 'error');
+            }
+        }
+
+        function openAssignModal(woId) {
+            currentWoId = woId;
+            document.getElementById('modalWoId').textContent = woId.substring(0, 8);
+            document.getElementById('assignModal').style.display = 'flex';
+        }
+
+        function closeAssignModal() {
+            document.getElementById('assignModal').style.display = 'none';
+            currentWoId = null;
+        }
+
+        async function assignTechnician() {
+            const technician = document.getElementById('technicianSelect').value;
+            if (!technician) {
+                alert('Pilih teknisi terlebih dahulu');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/wo/assign/${currentWoId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ technician: technician })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('✅ ' + result.message, 'success');
+                    closeAssignModal();
+                    loadNewWorkOrders();
+                } else {
+                    showAlert('❌ ' + result.message, 'error');
+                }
+            } catch (error) {
+                showAlert('❌ Terjadi kesalahan saat mengalokasikan WO', 'error');
+            }
+        }
+
+        async function verifyWorkOrder(woId) {
+            if (!confirm('Verifikasi dan tutup WO ini?')) return;
+
+            try {
+                const response = await fetch(`/api/wo/verify/${woId}`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('✅ ' + result.message, 'success');
+                    loadCompletedWorkOrders();
+                } else {
+                    showAlert('❌ ' + result.message, 'error');
+                }
+            } catch (error) {
+                showAlert('❌ Terjadi kesalahan saat memverifikasi WO', 'error');
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertArea = document.getElementById('alertArea');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertArea.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Load data saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNewWorkOrders();
+            loadCompletedWorkOrders();
+            loadInventory();
+            loadTechnicians();
+            
+            // Refresh data setiap 30 detik
+            setInterval(() => {
+                loadNewWorkOrders();
+                loadCompletedWorkOrders();
+            }, 30000);
+        });
+    </script>
+</body>
+</html>

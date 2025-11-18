@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Operator | Pelaporan WO</title>
+    <style>
+        /* CSS sama seperti sebelumnya, tetap dipertahankan */
+        body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        .header { background-color: #007bff; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .form-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); max-width: 600px; margin: 20px auto; }
+        .form-container h2 { color: #dc3545; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; }
+        .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-submit { background-color: #dc3545; color: white; padding: 12px; border: none; border-radius: 4px; width: 100%; cursor: pointer; }
+        .alert { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Dashboard Operator - PT. PF Technologies</h1>
+        <p>Gunakan formulir ini untuk melaporkan kerusakan atau permintaan maintenance.</p>
+        <div style="float: right;">
+            <span id="userInfo"></span>
+            <a href="/logout" style="color: white; margin-left: 15px;">Logout</a>
+        </div>
+    </div>
+
+    <div id="alertArea"></div>
+
+    <div class="form-container">
+        <h2>🚨 Form Permintaan Work Order</h2>
+        <form id="woRequestForm">
+            <div class="form-group">
+                <label for="asset_id">Aset yang Bermasalah</label>
+                <select id="asset_id" required>
+                    <option value="">Pilih Aset</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="wo_type">Jenis WO</label>
+                <select id="wo_type" required>
+                    <option value="Korektif">Korektif (Perbaikan)</option>
+                    <option value="Preventif">Preventif (Pencegahan)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="priority">Prioritas</label>
+                <select id="priority" required>
+                    <option value="Rendah">Rendah</option>
+                    <option value="Sedang">Sedang</option>
+                    <option value="Tinggi">Tinggi</option>
+                    <option value="Kritis">Kritis</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="description">Deskripsi Kerusakan/Masalah</label>
+                <textarea id="description" rows="5" placeholder="Contoh: Filling Machine tidak mengisi botol ke-5 dan lampu error menyala." required></textarea>
+            </div>
+            <button type="submit" class="btn-submit">Kirim Permintaan WO</button>
+        </form>
+    </div>
+
+    <script>
+        // Tampilkan info user
+        document.getElementById('userInfo').textContent = 'Operator: ' + (localStorage.getItem('username') || 'User');
+
+        async function loadAssetsForDropdown() {
+            try {
+                const response = await fetch('/api/assets');
+                if (!response.ok) throw new Error('Gagal memuat aset');
+                
+                const assets = await response.json();
+                const select = document.getElementById('asset_id');
+                
+                select.innerHTML = '<option value="">Pilih Aset</option>';
+                assets.forEach(asset => {
+                    const option = document.createElement('option');
+                    option.value = asset.name;
+                    option.textContent = asset.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                showAlert('Gagal memuat daftar aset: ' + error.message, 'error');
+            }
+        }
+        
+        async function submitWorkOrder(event) {
+            event.preventDefault();
+            const assetName = document.getElementById('asset_id').value;
+            const woType = document.getElementById('wo_type').value;
+            const priority = document.getElementById('priority').value;
+            const description = document.getElementById('description').value;
+
+            try {
+                const response = await fetch('/api/wo/request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        asset_id: assetName, 
+                        wo_type: woType,
+                        priority: priority,
+                        description: description 
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert(`✅ Permintaan berhasil dikirim! WO ID: ${result.wo_id}`, 'success');
+                    document.getElementById('woRequestForm').reset();
+                } else {
+                    showAlert('❌ ' + result.message, 'error');
+                }
+            } catch (error) {
+                showAlert('❌ Terjadi kesalahan saat menghubungi server.', 'error');
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertArea = document.getElementById('alertArea');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertArea.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        document.getElementById('woRequestForm').addEventListener('submit', submitWorkOrder);
+        document.addEventListener('DOMContentLoaded', loadAssetsForDropdown);
+    </script>
+</body>
+</html>

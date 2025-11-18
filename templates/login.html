@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Portal | Prime Fragrance Technologies</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- VARIABLES --- */
+        :root {
+            --navy-dark: #0F172A;
+            --navy-medium: #1E293B;
+            --blue-accent: #3B82F6;
+            --gold-accent: #F59E0B;
+            --text-gray: #64748B;
+            --bg-light: #F8FAFC;
+            --white: #FFFFFF;
+            --border: #E2E8F0;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* --- LAYOUT --- */
+        .login-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            background: var(--white);
+            overflow: hidden;
+        }
+
+        /* Left Side: Visual */
+        .visual-side {
+            flex: 1.2;
+            background-color: var(--navy-dark);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 60px;
+            color: white;
+            overflow: hidden;
+        }
+
+        .visual-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://images.unsplash.com/photo-1615634260167-c8cdede054de?auto=format&fit=crop&w=1000&q=80') center/cover no-repeat;
+            opacity: 0.4;
+            z-index: 0;
+            transition: transform 10s ease;
+        }
+        .visual-side:hover .visual-bg { transform: scale(1.05); }
+        
+        .visual-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.7));
+            z-index: 1;
+        }
+
+        .visual-content { position: relative; z-index: 2; animation: fadeInUp 0.8s ease-out; }
+        
+        .brand-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            padding: 8px 16px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2);
+            font-size: 0.85rem; margin-bottom: 30px; font-weight: 600; letter-spacing: 0.5px;
+        }
+
+        .quote-box {
+            margin-top: auto; position: relative; z-index: 2;
+            border-left: 4px solid var(--gold-accent); padding-left: 20px;
+        }
+        .quote-text { font-size: 1.1rem; line-height: 1.6; font-style: italic; color: #CBD5E1; }
+        .quote-author { margin-top: 15px; font-weight: 700; color: white; }
+
+        /* Right Side: Form */
+        .form-side {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            background: var(--white);
+        }
+
+        /* --- TOMBOL KEMBALI KE LANDING PAGE --- */
+        .back-btn {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            text-decoration: none;
+            color: var(--text-gray);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 30px;
+            transition: var(--transition);
+            background: transparent;
+            border: 1px solid transparent;
+        }
+
+        .back-btn:hover {
+            color: var(--navy-dark);
+            background: #F1F5F9;
+            border-color: var(--border);
+            transform: translateX(-5px); /* Efek geser sedikit ke kiri */
+        }
+
+        .login-card {
+            width: 100%; max-width: 420px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .form-header { margin-bottom: 40px; }
+        .logo-text { color: var(--navy-dark); font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .logo-text i { color: var(--blue-accent); }
+        .welcome-text { font-size: 2rem; font-weight: 700; color: var(--navy-dark); margin-bottom: 10px; }
+        .sub-text { color: var(--text-gray); }
+
+        /* Inputs */
+        .input-group { margin-bottom: 25px; position: relative; }
+        .label { display: block; font-size: 0.9rem; font-weight: 600; color: var(--navy-medium); margin-bottom: 8px; }
+        
+        .input-wrapper { position: relative; }
+        .input-icon {
+            position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+            color: #94A3B8; transition: var(--transition);
+        }
+        
+        .form-control {
+            width: 100%; padding: 14px 16px 14px 45px;
+            border: 2px solid var(--border); border-radius: 12px;
+            font-size: 1rem; font-family: inherit; color: var(--navy-dark);
+            transition: var(--transition); background: #F8FAFC;
+        }
+
+        .form-control:focus {
+            background: white; border-color: var(--blue-accent);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+        .form-control:focus + .input-icon { color: var(--blue-accent); }
+
+        /* Button */
+        .btn-login {
+            width: 100%; padding: 16px;
+            background: var(--navy-dark); color: white;
+            border: none; border-radius: 50px;
+            font-size: 1rem; font-weight: 700; cursor: pointer;
+            transition: var(--transition);
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        
+        .btn-login:hover {
+            background: var(--blue-accent);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+        .btn-login:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        /* Alerts */
+        .alert-box {
+            padding: 12px 16px; border-radius: 8px; margin-bottom: 25px;
+            font-size: 0.9rem; display: none; align-items: center; gap: 10px;
+            animation: slideDown 0.3s ease;
+        }
+        .alert-error { background: #FEF2F2; color: #991B1B; border: 1px solid #FEE2E2; }
+        .alert-success { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+
+        /* Footer */
+        .login-footer {
+            margin-top: 30px; text-align: center; font-size: 0.85rem; color: var(--text-gray);
+        }
+        .login-footer a { color: var(--blue-accent); text-decoration: none; font-weight: 600; }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%; border-top-color: white;
+            animation: spin 0.8s linear infinite; display: none;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .visual-side { display: none; } /* Hide visual on tablet/mobile */
+            .back-btn { top: 20px; left: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-wrapper">
+        
+        <div class="visual-side">
+            <div class="visual-bg"></div>
+            <div class="visual-overlay"></div>
+            
+            <div class="visual-content">
+                <div class="brand-badge">
+                    <i class="fas fa-bolt" style="color: var(--gold-accent);"></i> Enterprise System v3.0
+                </div>
+                <h1 style="font-size: 3rem; font-weight: 800; line-height: 1.1;">
+                    Precision in<br>Every Drop.
+                </h1>
+            </div>
+
+            <div class="quote-box visual-content">
+                <p class="quote-text">"Sistem ini telah meningkatkan efisiensi produksi kami hingga 40% dalam kuartal pertama."</p>
+                <div class="quote-author">Head of Manufacturing, Prime Fragrance</div>
+            </div>
+        </div>
+
+        <div class="form-side">
+            <a href="/" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Kembali ke Beranda
+            </a>
+
+            <div class="login-card">
+                <div class="form-header">
+                    <div class="logo-text">
+                        <i class="fas fa-flask"></i> PrimeFragrance
+                    </div>
+                    <div class="welcome-text">Selamat Datang</div>
+                    <p class="sub-text">Masukan kredensial Anda untuk mengakses Dashboard Manajemen Aset.</p>
+                </div>
+
+                <div id="alertArea" class="alert-box"></div>
+
+                <form id="loginForm">
+                    <div class="input-group">
+                        <label class="label" for="username">Username ID</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="username" class="form-control" placeholder="Contoh: mgr_maya" required autocomplete="username">
+                            <i class="fas fa-user input-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="label" for="password">Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+                            <i class="fas fa-lock input-icon"></i>
+                        </div>
+                        <div style="text-align: right; margin-top: 10px;">
+                            <a href="#" onclick="alert('Hubungi Supervisor atau Tim IT untuk reset password.')" style="font-size: 0.85rem; color: var(--blue-accent); text-decoration: none;">Lupa Password?</a>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-login" id="btnSubmit">
+                        <span>Masuk ke Sistem</span>
+                        <div class="spinner" id="spinner"></div>
+                    </button>
+                </form>
+
+                <div class="login-footer">
+                    &copy; 2025 PT. Prime Fragrance Technologies.<br>
+                    <span style="opacity: 0.7;">Secure Server Connection</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const alertArea = document.getElementById('alertArea');
+        const btnSubmit = document.getElementById('btnSubmit');
+        const spinner = document.getElementById('spinner');
+        const btnText = btnSubmit.querySelector('span');
+
+        function showAlert(msg, type) {
+            // Reset classes
+            alertArea.className = 'alert-box';
+            alertArea.classList.add(type === 'success' ? 'alert-success' : 'alert-error');
+            
+            // Set content with icon
+            const icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-exclamation-circle"></i>';
+            alertArea.innerHTML = `${icon} ${msg}`;
+            
+            // Show
+            alertArea.style.display = 'flex';
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // UI Loading State
+            btnSubmit.disabled = true;
+            btnText.style.opacity = '0.5';
+            spinner.style.display = 'block';
+            alertArea.style.display = 'none';
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Simulasi network delay agar animasi loading terlihat (UX)
+            await new Promise(r => setTimeout(r, 800));
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert(`Login Berhasil! Mengalihkan...`, 'success');
+                    setTimeout(() => {
+                        window.location.href = result.redirect_url;
+                    }, 1000);
+                } else {
+                    showAlert(result.message || 'Kredensial tidak valid.', 'error');
+                    // Reset button state
+                    btnSubmit.disabled = false;
+                    btnText.style.opacity = '1';
+                    spinner.style.display = 'none';
+                }
+            } catch (error) {
+                showAlert('Gagal terhubung ke server.', 'error');
+                btnSubmit.disabled = false;
+                btnText.style.opacity = '1';
+                spinner.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

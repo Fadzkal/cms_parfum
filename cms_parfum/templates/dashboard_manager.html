@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Manager MMS Parfum</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        .header { background-color: #007bff; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .header h1 { margin: 0; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .kpi-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); text-align: center; }
+        .kpi-card h3 { color: #007bff; margin-top: 0; }
+        .kpi-value { font-size: 2.5em; font-weight: bold; color: #28a745; margin: 10px 0; }
+        .asset-list { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); margin-top: 20px; }
+        .asset-list table { width: 100%; border-collapse: collapse; }
+        .asset-list th, .asset-list td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .breakdown-high { color: red; font-weight: bold; }
+        .breakdown-medium { color: orange; }
+        .breakdown-low { color: green; }
+        .alert { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .alert-info { background-color: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Dashboard Manager - Lini Parfum</h1>
+        <p>Analisis Kinerja Pemeliharaan Kritis</p>
+        <div style="float: right;">
+            <span>Manager: <span id="userName"></span></span>
+            <a href="/logout" style="color: white; margin-left: 15px;">Logout</a>
+        </div>
+    </div>
+
+    <div id="alertArea"></div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <h3>MTTR Rata-Rata</h3>
+            <div class="kpi-value" id="mttrValue">--</div>
+            <p>Waktu perbaikan rata-rata (Menit)</p>
+        </div>
+        <div class="kpi-card">
+            <h3>Kepatuhan PM</h3>
+            <div class="kpi-value" id="pmCompliance">--</div>
+            <p>WO Preventif Selesai Tepat Waktu</p>
+        </div>
+        <div class="kpi-card">
+            <h3>Aset Paling Bermasalah</h3>
+            <div class="kpi-value" id="problemAsset">--</div>
+            <p>Frekuensi Breakdown Tertinggi</p>
+        </div>
+    </div>
+
+    <div class="asset-list">
+        <h2>Status 4 Aset Kritis</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Aset</th>
+                    <th>Lokasi</th>
+                    <th>Status</th>
+                    <th>Breakdown Bulan Ini</th>
+                    <th>Terakhir Maintenance</th>
+                </tr>
+            </thead>
+            <tbody id="assetTableBody">
+                <tr><td colspan="5">Memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Tampilkan info user
+        document.getElementById('userName').textContent = localStorage.getItem('username') || 'User';
+
+        async function loadAssets() {
+            try {
+                const response = await fetch('/api/assets/detail');
+                if (!response.ok) throw new Error('Gagal memuat aset');
+                
+                const assets = await response.json();
+                const tableBody = document.getElementById('assetTableBody');
+                
+                tableBody.innerHTML = '';
+                assets.forEach(asset => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = asset.name;
+                    row.insertCell().textContent = asset.location;
+                    row.insertCell().textContent = asset.status;
+                    
+                    const breakdownCell = row.insertCell();
+                    breakdownCell.textContent = asset.breakdown_count || 0;
+                    
+                    // Warna berdasarkan jumlah breakdown
+                    if (asset.breakdown_count > 5) {
+                        breakdownCell.className = 'breakdown-high';
+                    } else if (asset.breakdown_count > 2) {
+                        breakdownCell.className = 'breakdown-medium';
+                    } else {
+                        breakdownCell.className = 'breakdown-low';
+                    }
+                    
+                    const lastMaintenanceCell = row.insertCell();
+                    if (asset.last_maintenance) {
+                        const date = new Date(asset.last_maintenance * 1000);
+                        lastMaintenanceCell.textContent = date.toLocaleDateString('id-ID');
+                    } else {
+                        lastMaintenanceCell.textContent = 'Belum ada';
+                    }
+                });
+            } catch (error) {
+                showAlert('Gagal memuat data aset: ' + error.message, 'error');
+            }
+        }
+        
+        async function loadMTTR() {
+            try {
+                const response = await fetch('/api/kpi/mttr');
+                if (!response.ok) throw new Error('Gagal memuat MTTR');
+                
+                const result = await response.json();
+                
+                if (result.mttr_minutes) {
+                    document.getElementById('mttrValue').textContent = result.mttr_minutes.toFixed(1);
+                } else {
+                    document.getElementById('mttrValue').textContent = 'N/A';
+                }
+            } catch (error) {
+                document.getElementById('mttrValue').textContent = 'Error';
+                console.error("Gagal memuat MTTR:", error);
+            }
+        }
+
+        async function loadKPIAssets() {
+            try {
+                const response = await fetch('/api/kpi/assets');
+                if (!response.ok) throw new Error('Gagal memuat KPI aset');
+                
+                const result = await response.json();
+                
+                document.getElementById('pmCompliance').textContent = result.pm_compliance + '%';
+                document.getElementById('problemAsset').textContent = result.problem_asset;
+            } catch (error) {
+                document.getElementById('pmCompliance').textContent = 'Error';
+                document.getElementById('problemAsset').textContent = 'Error';
+                console.error("Gagal memuat KPI aset:", error);
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertArea = document.getElementById('alertArea');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertArea.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Jalankan saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAssets();
+            loadMTTR();
+            loadKPIAssets();
+            
+            // Refresh data setiap menit
+            setInterval(() => {
+                loadAssets();
+                loadMTTR();
+                loadKPIAssets();
+            }, 60000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Teknisi | Daftar Tugas WO</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        .header { background-color: #28a745; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .wo-list-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        .wo-list-container h2 { color: #28a745; }
+        .wo-list table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .wo-list th, .wo-list td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .btn { padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; margin: 2px; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-warning { background-color: #ffc107; color: black; }
+        .status-badge { padding: 3px 8px; border-radius: 12px; font-size: 0.8em; }
+        .status-ditugaskan { background-color: #fff3cd; color: #856404; }
+        .status-dalam-pengerjaan { background-color: #d1ecf1; color: #0c5460; }
+        .alert { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .alert-success { background-color: #d4edda; color: #155724; }
+        .alert-error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Dashboard Teknisi - Tugas Anda</h1>
+        <p>WO yang ditugaskan kepada Anda hari ini. Fokus pada perbaikan Lini Parfum.</p>
+        <div style="float: right;">
+            <span>Teknisi: <span id="userName"></span></span>
+            <a href="/logout" style="color: white; margin-left: 15px;">Logout</a>
+        </div>
+    </div>
+
+    <div id="alertArea"></div>
+
+    <div class="wo-list-container">
+        <h2>🔧 Work Order (WO) Ditugaskan</h2>
+        <div class="wo-list">
+            <table>
+                <thead>
+                    <tr>
+                        <th>WO ID</th>
+                        <th>Aset</th>
+                        <th>Tipe</th>
+                        <th>Prioritas</th>
+                        <th>Status</th>
+                        <th>Deskripsi Masalah</th>
+                        <th>Dibuat</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="woTableBody">
+                    <tr><td colspan="8">Memuat data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal untuk menyelesaikan WO -->
+    <div id="completeModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
+        <div style="background: white; padding: 20px; border-radius: 8px; width: 400px;">
+            <h3>Selesaikan Work Order</h3>
+            <p>WO: <span id="modalWoId"></span></p>
+            <div style="margin: 10px 0;">
+                <label>Catatan Penyelesaian:</label>
+                <textarea id="completionNotes" rows="4" style="width: 100%; padding: 8px; margin-top: 5px;" placeholder="Deskripsi pekerjaan yang dilakukan..."></textarea>
+            </div>
+            <div style="text-align: right; margin-top: 15px;">
+                <button onclick="closeCompleteModal()" style="margin-right: 10px;">Batal</button>
+                <button onclick="completeWorkOrder()" style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px;">Selesaikan WO</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentWoId = null;
+
+        // Tampilkan info user
+        document.getElementById('userName').textContent = localStorage.getItem('username') || 'User';
+
+        async function loadAssignedWO() {
+            try {
+                const response = await fetch('/api/wo/assigned');
+                if (!response.ok) throw new Error('Gagal memuat WO');
+                
+                const woList = await response.json();
+                const tableBody = document.getElementById('woTableBody');
+                
+                tableBody.innerHTML = '';
+                if (woList.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="8">Tidak ada Work Order yang ditugaskan saat ini.</td></tr>';
+                    return;
+                }
+                
+                woList.forEach(wo => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = wo._id.substring(0, 8);
+                    row.insertCell().textContent = wo.asset_name;
+                    row.insertCell().textContent = wo.type;
+                    
+                    const priorityCell = row.insertCell();
+                    priorityCell.textContent = wo.priority;
+                    if (wo.priority === 'Kritis') {
+                        priorityCell.style.color = 'red';
+                        priorityCell.style.fontWeight = 'bold';
+                    }
+                    
+                    const statusCell = row.insertCell();
+                    const statusBadge = document.createElement('span');
+                    statusBadge.className = `status-badge status-${wo.status.toLowerCase().replace(' ', '-')}`;
+                    statusBadge.textContent = wo.status;
+                    statusCell.appendChild(statusBadge);
+                    
+                    row.insertCell().textContent = wo.description.substring(0, 50) + '...';
+                    row.insertCell().textContent = new Date(wo.timestamp_created * 1000).toLocaleDateString('id-ID');
+                    
+                    const actionCell = row.insertCell();
+                    
+                    if (wo.status === 'Ditugaskan') {
+                        const startBtn = document.createElement('button');
+                        startBtn.textContent = 'Mulai Kerja';
+                        startBtn.className = 'btn btn-primary';
+                        startBtn.onclick = () => startWorkOrder(wo._id);
+                        actionCell.appendChild(startBtn);
+                    } else if (wo.status === 'Dalam Pengerjaan') {
+                        const completeBtn = document.createElement('button');
+                        completeBtn.textContent = 'Selesaikan';
+                        completeBtn.className = 'btn btn-success';
+                        completeBtn.onclick = () => openCompleteModal(wo._id);
+                        actionCell.appendChild(completeBtn);
+                    } else {
+                        actionCell.textContent = 'Menunggu...';
+                    }
+                });
+            } catch (error) {
+                showAlert('Gagal memuat data WO: ' + error.message, 'error');
+            }
+        }
+
+        async function startWorkOrder(woId) {
+            try {
+                const response = await fetch(`/api/wo/start/${woId}`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('✅ ' + result.message, 'success');
+                    loadAssignedWO();
+                } else {
+                    showAlert('❌ ' + result.message, 'error');
+                }
+            } catch (error) {
+                showAlert('❌ Terjadi kesalahan saat memulai WO', 'error');
+            }
+        }
+
+        function openCompleteModal(woId) {
+            currentWoId = woId;
+            document.getElementById('modalWoId').textContent = woId.substring(0, 8);
+            document.getElementById('completeModal').style.display = 'flex';
+        }
+
+        function closeCompleteModal() {
+            document.getElementById('completeModal').style.display = 'none';
+            document.getElementById('completionNotes').value = '';
+            currentWoId = null;
+        }
+
+        async function completeWorkOrder() {
+            const notes = document.getElementById('completionNotes').value;
+            if (!notes) {
+                alert('Harap isi catatan penyelesaian');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/wo/complete/${currentWoId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notes: notes })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('✅ ' + result.message, 'success');
+                    closeCompleteModal();
+                    loadAssignedWO();
+                } else {
+                    showAlert('❌ ' + result.message, 'error');
+                }
+            } catch (error) {
+                showAlert('❌ Terjadi kesalahan saat menyelesaikan WO', 'error');
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertArea = document.getElementById('alertArea');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertArea.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Load data saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAssignedWO();
+            
+            // Refresh data setiap 30 detik
+            setInterval(loadAssignedWO, 30000);
+        });
+    </script>
+</body>
+</html>

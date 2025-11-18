@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard | Prime Fragrance</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* --- VARIABLES (Match Landing Page Theme) --- */
+        :root {
+            --navy-dark: #0F172A;    /* Sidebar BG */
+            --navy-light: #1E293B;   /* Hover BG */
+            --blue-accent: #3B82F6;  /* Primary Action */
+            --gold-accent: #F59E0B;  /* Secondary Highlight */
+            --bg-main: #F1F5F9;      /* Body Background */
+            --white: #FFFFFF;
+            --text-dark: #334155;
+            --text-gray: #64748B;
+            --border: #E2E8F0;
+            --sidebar-width: 260px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR (Fixed Left) --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--navy-dark);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            z-index: 100;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .logo-icon { font-size: 1.5rem; color: var(--blue-accent); }
+        .logo-text { font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; }
+
+        .nav-menu { flex: 1; padding: 20px 15px; overflow-y: auto; }
+        .menu-label {
+            padding: 0 15px; margin-bottom: 10px; margin-top: 20px;
+            font-size: 0.75rem; text-transform: uppercase; color: var(--text-gray); letter-spacing: 1px; font-weight: 700;
+        }
+        
+        .nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 15px; border-radius: 10px;
+            color: #CBD5E1; text-decoration: none;
+            font-weight: 500; transition: var(--transition);
+            margin-bottom: 5px;
+        }
+        .nav-link:hover { background-color: rgba(255,255,255,0.05); color: var(--white); transform: translateX(5px); }
+        .nav-link.active { background-color: var(--blue-accent); color: var(--white); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        .nav-link i { width: 20px; text-align: center; font-size: 1.1rem; }
+
+        .user-panel {
+            padding: 20px; border-top: 1px solid rgba(255,255,255,0.1);
+            background-color: rgba(0,0,0,0.2);
+        }
+        .user-info { font-weight: 700; font-size: 0.9rem; color: var(--white); }
+        .user-role { font-size: 0.8rem; color: var(--text-gray); margin-bottom: 10px; }
+        .btn-logout { 
+            color: #EF4444; text-decoration: none; font-size: 0.85rem; 
+            display: flex; align-items: center; gap: 8px; font-weight: 600; transition: 0.2s; 
+        }
+        .btn-logout:hover { color: #FCA5A5; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            flex: 1; display: flex; flex-direction: column; overflow: hidden;
+            position: relative;
+        }
+
+        /* Mobile Header */
+        .mobile-header {
+            display: none; background: var(--white); padding: 15px 20px;
+            justify-content: space-between; align-items: center; box-shadow: var(--shadow);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .top-header {
+            background: var(--white); padding: 20px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .page-title h1 { font-size: 1.5rem; color: var(--navy-dark); font-weight: 800; }
+        .page-title p { color: var(--text-gray); font-size: 0.9rem; margin-top: 5px; }
+        
+        .dashboard-content {
+            padding: 40px; overflow-y: auto; flex: 1;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px; margin-bottom: 40px;
+        }
+        .kpi-card {
+            background: var(--white); padding: 25px; border-radius: 16px;
+            box-shadow: var(--shadow); border: 1px solid var(--border);
+            position: relative; overflow: hidden; transition: var(--transition);
+        }
+        .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: var(--blue-accent); }
+        
+        .kpi-icon {
+            position: absolute; right: 20px; top: 20px;
+            width: 50px; height: 50px; background: #EFF6FF; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; color: var(--blue-accent);
+        }
+        .kpi-label { color: var(--text-gray); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 2rem; font-weight: 800; color: var(--navy-dark); margin: 10px 0; }
+        .kpi-trend { font-size: 0.85rem; display: flex; align-items: center; gap: 5px; font-weight: 600; }
+        .trend-up { color: #10B981; } .trend-down { color: #EF4444; }
+        
+        /* Charts Area */
+        .charts-grid {
+            display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 40px;
+        }
+        .chart-container {
+            background: var(--white); padding: 25px; border-radius: 16px;
+            box-shadow: var(--shadow); border: 1px solid var(--border);
+        }
+        .card-header { display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center; }
+        .card-title { font-size: 1.1rem; font-weight: 700; color: var(--navy-dark); }
+
+        /* Table */
+        .table-container {
+            background: var(--white); padding: 0; border-radius: 16px;
+            box-shadow: var(--shadow); border: 1px solid var(--border); overflow: hidden;
+        }
+        .table-header { padding: 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 15px 25px; background: #F8FAFC; color: var(--text-gray); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; }
+        td { padding: 15px 25px; border-bottom: 1px solid var(--border); color: var(--text-dark); font-size: 0.95rem; font-weight: 500; }
+        tr:last-child td { border-bottom: none; }
+        
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .status-ok { background: #DCFCE7; color: #166534; }
+        .status-warn { background: #FEF3C7; color: #92400E; }
+        .status-err { background: #FEE2E2; color: #991B1B; }
+
+        /* Buttons & Inputs */
+        .btn {
+            padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;
+            font-weight: 600; transition: var(--transition); display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-primary { background: var(--navy-dark); color: var(--white); }
+        .btn-primary:hover { background: var(--blue-accent); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-gray); }
+        .btn-outline:hover { border-color: var(--text-dark); color: var(--text-dark); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-box {
+            background: var(--white); width: 500px; padding: 30px;
+            border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--navy-dark); font-size: 0.9rem; }
+        .form-input {
+            width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;
+            font-family: inherit; font-size: 0.95rem; transition: var(--transition);
+        }
+        .form-input:focus { border-color: var(--blue-accent); outline: none; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar { position: absolute; transform: translateX(-100%); height: 100%; }
+            .sidebar.active { transform: translateX(0); box-shadow: 100vw 0 0 rgba(0,0,0,0.5); }
+            .mobile-header { display: flex; }
+            .top-header { display: none; }
+            .charts-grid { grid-template-columns: 1fr; }
+            .dashboard-content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="mobile-header">
+        <div class="logo-text" style="color: var(--navy-dark);"><i class="fas fa-flask"></i> PrimeFragrance</div>
+        <button class="btn-outline" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-flask logo-icon"></i>
+            <div class="logo-text">PrimeFragrance</div>
+        </div>
+        
+        <div class="nav-menu">
+            <div class="menu-label">Overview</div>
+            <a href="#" class="nav-link active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            
+            <div class="menu-label">Administrasi</div>
+            <a href="#" class="nav-link" onclick="openModal()"><i class="fas fa-user-plus"></i> Tambah User</a>
+            <a href="#" class="nav-link"><i class="fas fa-users"></i> Kelola Tim</a>
+            
+            <div class="menu-label">Laporan</div>
+            <a href="#" class="nav-link"><i class="fas fa-file-alt"></i> Laporan KPI</a>
+            <a href="#" class="nav-link"><i class="fas fa-boxes"></i> Stok Aset</a>
+        </div>
+        
+        <div class="user-panel">
+            <div class="user-info" id="userName">Manager</div>
+            <div class="user-role">Head of Engineering</div>
+            <a href="/logout" class="btn-logout"><i class="fas fa-right-from-bracket"></i> Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <header class="top-header">
+            <div class="page-title">
+                <h1>Executive Dashboard</h1>
+                <p>Pantau kesehatan aset dan efisiensi produksi secara real-time.</p>
+            </div>
+            <div style="color: var(--text-gray); font-weight: 600; font-size: 0.9rem;">
+                <i class="far fa-calendar-alt"></i> <span id="dateNow"></span>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fas fa-stopwatch"></i></div>
+                    <div class="kpi-label">MTTR Rata-rata</div>
+                    <div class="kpi-value" id="mttrValue">--</div>
+                    <div class="kpi-trend trend-up">
+                        <i class="fas fa-arrow-down"></i> Efisiensi naik 12%
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="color: #10B981; background: #DCFCE7;"><i class="fas fa-check-circle"></i></div>
+                    <div class="kpi-label">Kepatuhan PM</div>
+                    <div class="kpi-value" id="pmCompliance">--%</div>
+                    <div class="kpi-trend" style="color: var(--text-gray);">
+                        Target Bulanan: 90%
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="color: #EF4444; background: #FEE2E2;"><i class="fas fa-triangle-exclamation"></i></div>
+                    <div class="kpi-label">Aset Kritis</div>
+                    <div class="kpi-value" id="problemAsset" style="font-size: 1.5rem;">Loading...</div>
+                    <div class="kpi-trend trend-down">
+                        Perlu perhatian segera
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="color: #F59E0B; background: #FEF3C7;"><i class="fas fa-list-check"></i></div>
+                    <div class="kpi-label">WO Aktif</div>
+                    <div class="kpi-value" id="activeWo">--</div>
+                    <div class="kpi-trend" style="color: var(--text-gray);">
+                        Sedang dikerjakan
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <div class="card-header">
+                        <div class="card-title">Statistik Work Order (Mingguan)</div>
+                        <button class="btn-outline" style="padding: 5px 10px; font-size: 0.8rem;"><i class="fas fa-download"></i> Export</button>
+                    </div>
+                    <canvas id="woChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="card-header">
+                        <div class="card-title">Status Kesehatan Aset</div>
+                    </div>
+                    <canvas id="assetChart"></canvas>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="card-title">Detail Aset Produksi</div>
+                    <button class="btn btn-primary" onclick="loadDashboard()"><i class="fas fa-sync-alt"></i> Refresh Data</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nama Aset</th>
+                                <th>Lokasi</th>
+                                <th>Status</th>
+                                <th>Total Breakdown</th>
+                                <th>Efisiensi OEE</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assetTableBody">
+                            <tr><td colspan="5" style="text-align:center; padding: 30px;">Memuat Data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="userModal">
+        <div class="modal-box">
+            <h2 style="color: var(--navy-dark); margin-bottom: 5px;">Tambah Pengguna Baru</h2>
+            <p style="color: var(--text-gray); margin-bottom: 25px;">Isi data lengkap untuk membuat akun staf.</p>
+            
+            <form id="regForm">
+                <div class="form-group">
+                    <label class="form-label">Nama Lengkap</label>
+                    <input type="text" id="regName" class="form-input" placeholder="Contoh: Budi Santoso" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" id="regUsername" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="regPass" class="form-input" required>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Role</label>
+                        <select id="regRole" class="form-input">
+                            <option value="Operator">Operator</option>
+                            <option value="Teknisi">Teknisi</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Manager">Manager</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Departemen</label>
+                        <input type="text" id="regDept" class="form-input" placeholder="Contoh: Produksi" required>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Init Data
+        document.getElementById('userName').textContent = sessionStorage.getItem('user_name') || 'Manager';
+        document.getElementById('dateNow').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        let woChartInstance = null;
+        let assetChartInstance = null;
+
+        // Mobile Toggle
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        async function loadDashboard() {
+            try {
+                // Load All Data Parallel
+                const [kpiRes, dashRes, assetRes] = await Promise.all([
+                    fetch('/api/kpi/assets'),
+                    fetch('/api/kpi/dashboard'),
+                    fetch('/api/assets/detail')
+                ]);
+
+                const kpiData = await kpiRes.json();
+                const dashData = await dashRes.json();
+                const assets = await assetRes.json();
+                
+                // Update KPI
+                document.getElementById('pmCompliance').textContent = kpiData.pm_compliance + '%';
+                document.getElementById('problemAsset').textContent = kpiData.problem_asset;
+                document.getElementById('mttrValue').textContent = dashData.mttr_minutes.toFixed(1) + ' m';
+                document.getElementById('activeWo').textContent = dashData.active_work_orders;
+
+                // Update Charts
+                updateCharts(kpiData.wo_stats, dashData);
+
+                // Update Table
+                renderTable(assets);
+
+            } catch (e) { console.error("Error loading dashboard", e); }
+        }
+
+        function updateCharts(woStats, dashData) {
+            const ctx1 = document.getElementById('woChart').getContext('2d');
+            const ctx2 = document.getElementById('assetChart').getContext('2d');
+
+            // WO Bar Chart
+            if(woChartInstance) woChartInstance.destroy();
+            woChartInstance = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Baru', 'Proses', 'Selesai', 'Ditutup'],
+                    datasets: [{
+                        label: 'Jumlah WO',
+                        data: [woStats.new, woStats.in_progress, woStats.completed, woStats.closed],
+                        backgroundColor: ['#F59E0B', '#3B82F6', '#10B981', '#94A3B8'],
+                        borderRadius: 6,
+                        barThickness: 40
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+                }
+            });
+
+            // Asset Doughnut Chart
+            if(assetChartInstance) assetChartInstance.destroy();
+            assetChartInstance = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Operasional', 'Rusak/Down'],
+                    datasets: [{
+                        data: [dashData.operational_assets, dashData.total_assets - dashData.operational_assets],
+                        backgroundColor: ['#0F172A', '#EF4444'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: { 
+                    responsive: true,
+                    cutout: '75%',
+                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } }
+                }
+            });
+        }
+
+        function renderTable(assets) {
+            const tbody = document.getElementById('assetTableBody');
+            tbody.innerHTML = '';
+            
+            if (assets.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px;">Tidak ada data aset.</td></tr>';
+                return;
+            }
+
+            assets.forEach(asset => {
+                let badgeClass = 'status-ok';
+                if(asset.status === 'Perlu Perhatian') badgeClass = 'status-warn';
+                if(asset.status === 'Bermasalah') badgeClass = 'status-err';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight:700; color:var(--navy-dark);">${asset.name}</td>
+                        <td style="color:var(--text-gray);">${asset.location}</td>
+                        <td><span class="status-badge ${badgeClass}">${asset.status}</span></td>
+                        <td style="text-align:center; font-weight:700;">${asset.breakdown_count}</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div style="flex:1; background:#E2E8F0; height:8px; border-radius:4px; overflow:hidden;">
+                                    <div style="background:var(--blue-accent); width:${asset.efficiency}%; height:100%;"></div>
+                                </div>
+                                <span style="font-size:0.85rem; font-weight:700;">${asset.efficiency}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Modal Functions
+        function openModal() { document.getElementById('userModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('userModal').style.display = 'none'; }
+        
+        // Close modal on outside click
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('userModal')) {
+                closeModal();
+            }
+        }
+
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            btn.textContent = 'Menyimpan...';
+            btn.disabled = true;
+
+            const data = {
+                name: document.getElementById('regName').value,
+                username: document.getElementById('regUsername').value,
+                password: document.getElementById('regPass').value,
+                role: document.getElementById('regRole').value,
+                department: document.getElementById('regDept').value
+            };
+
+            try {
+                const res = await fetch('/api/admin/register', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)
+                });
+                
+                if(res.ok) { 
+                    alert('User berhasil didaftarkan!'); 
+                    closeModal();
+                    document.getElementById('regForm').reset();
+                } else {
+                    const msg = await res.json();
+                    alert('Gagal: ' + msg.message);
+                }
+            } catch(err) { 
+                alert('Terjadi kesalahan koneksi.'); 
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Load Initial Data
+        loadDashboard();
+        
+        // Auto Refresh every 30 seconds
+        setInterval(loadDashboard, 30000);
+    </script>
+</body>
+</html>

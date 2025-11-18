@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technician App | Prime Fragrance</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- VARIABLES (Navy Theme) --- */
+        :root {
+            --navy-dark: #0F172A;
+            --blue-accent: #3B82F6;
+            --bg-main: #F1F5F9;
+            --white: #FFFFFF;
+            --text-dark: #334155;
+            --text-gray: #64748B;
+            --border: #E2E8F0;
+            --sidebar-width: 260px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--navy-dark);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            z-index: 200;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            transition: var(--transition);
+        }
+        
+        /* Mobile Sidebar Handling */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed; height: 100%; transform: translateX(-100%);
+            }
+            .sidebar.active { transform: translateX(0); box-shadow: 100vw 0 0 rgba(0,0,0,0.5); }
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .logo-icon { font-size: 1.5rem; color: var(--blue-accent); }
+        .logo-text { font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; }
+
+        .nav-menu { flex: 1; padding: 20px 15px; overflow-y: auto; }
+        
+        .nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 15px; border-radius: 10px;
+            color: #CBD5E1; text-decoration: none;
+            font-weight: 500; transition: var(--transition);
+            margin-bottom: 5px;
+        }
+        .nav-link:hover { background-color: rgba(255,255,255,0.05); color: var(--white); transform: translateX(5px); }
+        .nav-link.active { background-color: var(--blue-accent); color: var(--white); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        
+        .user-panel {
+            padding: 20px; border-top: 1px solid rgba(255,255,255,0.1);
+            background-color: rgba(0,0,0,0.2);
+        }
+        .user-info { font-weight: 700; font-size: 0.9rem; color: var(--white); margin-bottom: 5px; }
+        .btn-logout { color: #EF4444; text-decoration: none; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; font-weight: 600; transition: 0.2s; }
+        .btn-logout:hover { color: #FCA5A5; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative;
+        }
+
+        /* Top Bar */
+        .app-bar {
+            background: var(--white); padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .menu-btn { font-size: 1.4rem; color: var(--navy-dark); cursor: pointer; display: none; }
+        @media (max-width: 768px) { .menu-btn { display: block; } }
+
+        .page-title { font-size: 1.2rem; font-weight: 800; color: var(--navy-dark); margin-left: 10px; }
+
+        /* Content Area */
+        .content-scroll { padding: 20px; overflow-y: auto; flex: 1; }
+
+        /* Task Card */
+        .task-card {
+            background: var(--white); padding: 20px; border-radius: 12px;
+            box-shadow: var(--shadow); transition: var(--transition);
+            border-left: 4px solid var(--blue-accent); margin-bottom: 20px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        
+        .task-header { display: flex; justify-content: space-between; align-items: center; }
+        .task-asset { font-weight: 700; font-size: 1.1rem; color: var(--navy-dark); }
+        
+        .task-prio { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; }
+        .prio-Kritis { background: #FEE2E2; color: #991B1B; }
+        .prio-Tinggi { background: #FFEDD5; color: #9A3412; }
+        .prio-Sedang { background: #EFF6FF; color: #1E40AF; }
+
+        .task-desc { font-size: 0.9rem; color: var(--text-gray); line-height: 1.5; }
+        .task-meta { font-size: 0.8rem; color: #94A3B8; display: flex; align-items: center; gap: 5px; }
+
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.95rem; transition: var(--transition); display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn-start { background: var(--blue-accent); color: white; }
+        .btn-start:hover { background: #2563EB; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        .btn-finish { background: #10B981; color: white; }
+        .btn-finish:hover { background: #059669; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--white); z-index: 300; display: none; flex-direction: column;
+        }
+        
+        .modal-header {
+            padding: 15px 20px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            background: #F8FAFC;
+        }
+        .modal-header h3 { color: var(--navy-dark); margin: 0; font-size: 1.2rem; }
+        
+        .modal-body { padding: 20px; flex: 1; overflow-y: auto; }
+
+        .form-label { font-weight: 600; color: var(--navy-dark); font-size: 0.9rem; margin-bottom: 8px; display: block; }
+        .form-input { width: 100%; padding: 12px; border: 1px solid #CBD5E1; border-radius: 8px; margin-bottom: 20px; font-family: inherit; font-size: 0.95rem; transition: 0.2s; }
+        .form-input:focus { border-color: var(--blue-accent); outline: none; }
+
+        .upload-zone {
+            border: 2px dashed #94A3B8; padding: 30px; text-align: center; border-radius: 12px;
+            background: #F1F5F9; margin-bottom: 20px; color: #64748B; cursor: pointer; transition: 0.2s;
+        }
+        .upload-zone:active { background: #E2E8F0; }
+        
+        .preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 20px; }
+        .preview-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-tools logo-icon"></i>
+            <div class="logo-text">TEKNISI APP</div>
+        </div>
+        
+        <div class="nav-menu">
+            <a href="#" class="nav-link active"><i class="fas fa-clipboard-list"></i> Tugas Saya</a>
+            <a href="#" class="nav-link"><i class="fas fa-check-circle"></i> Selesai</a>
+        </div>
+        
+        <div class="user-panel">
+            <div class="user-info" id="techName">Teknisi</div>
+            <a href="/logout" class="btn-logout"><i class="fas fa-right-from-bracket"></i> Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="app-bar">
+            <div style="display: flex; align-items: center;">
+                <i class="fas fa-bars menu-btn" onclick="document.getElementById('sidebar').classList.toggle('active')"></i>
+                <div class="page-title">Daftar Tugas</div>
+            </div>
+            <div style="width: 35px; height: 35px; background: #F1F5F9; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--navy-dark);">
+                <i class="fas fa-bell"></i>
+            </div>
+        </div>
+
+        <div class="content-scroll" id="taskList">
+            <div style="text-align: center; margin-top: 50px; color: #94A3B8;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><br><br>Memuat tugas...
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="finishModal">
+        <div class="modal-header">
+            <h3>Laporan Perbaikan</h3>
+            <button onclick="closeModal()" style="background:none; border:none; font-size:1.5rem; color: #64748B;">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="color: #64748B; font-size: 0.85rem; margin-bottom: 20px;">
+                WO ID: <span id="modalWoId" style="font-family: monospace; font-weight: 700; color: var(--navy-dark);"></span>
+            </p>
+            
+            <label class="form-label">Komponen Diganti</label>
+            <textarea id="parts" class="form-input" rows="2" placeholder="Cth: Bearing, Seal, Sensor..."></textarea>
+            
+            <label class="form-label">Catatan Perbaikan</label>
+            <textarea id="notes" class="form-input" rows="4" placeholder="Jelaskan solusi yang dilakukan..."></textarea>
+            
+            <label class="form-label">Foto Bukti</label>
+            <div class="upload-zone" onclick="document.getElementById('fileIn').click()">
+                <i class="fas fa-camera" style="font-size: 2rem; margin-bottom: 10px; color: var(--blue-accent);"></i><br>
+                Tap untuk ambil foto
+            </div>
+            <input type="file" id="fileIn" style="display:none;" multiple accept="image/*" onchange="previewFiles(this.files)">
+            
+            <div class="preview-grid" id="prevGrid"></div>
+
+            <button class="btn btn-finish" onclick="submitFinish()">Kirim Laporan</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('techName').textContent = sessionStorage.getItem('user_name') || 'Teknisi';
+        let currentId = null;
+        let filesToUpload = [];
+
+        async function loadTasks() {
+            try {
+                const res = await fetch('/api/wo/assigned');
+                const tasks = await res.json();
+                const cont = document.getElementById('taskList');
+                cont.innerHTML = '';
+                
+                if(tasks.length === 0) {
+                    cont.innerHTML = `
+                        <div style="text-align:center; margin-top:50px; color:#94A3B8; padding: 40px;">
+                            <i class="fas fa-mug-hot" style="font-size:3rem; margin-bottom:15px; opacity:0.5;"></i><br>
+                            Tidak ada tugas aktif.<br>Silakan istirahat sejenak.
+                        </div>`;
+                    return;
+                }
+
+                tasks.forEach(t => {
+                    let btn = '';
+                    if(t.status === 'Ditugaskan') {
+                        btn = `<button class="btn btn-start" onclick="startTask('${t._id}')"><i class="fas fa-play"></i> Mulai Kerjakan</button>`;
+                    } else {
+                        btn = `<button class="btn btn-finish" onclick="openModal('${t._id}')"><i class="fas fa-check-circle"></i> Selesaikan</button>`;
+                    }
+
+                    cont.innerHTML += `
+                        <div class="task-card">
+                            <div class="task-header">
+                                <span class="task-asset">${t.asset_name}</span>
+                                <span class="task-prio prio-${t.priority}">${t.priority}</span>
+                            </div>
+                            <div class="task-desc">${t.description}</div>
+                            <div class="task-meta">
+                                <i class="far fa-clock"></i> ${new Date(t.timestamp_created*1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            </div>
+                            ${btn}
+                        </div>
+                    `;
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        async function startTask(id) {
+            if(confirm('Mulai kerjakan tugas ini sekarang?')) {
+                await fetch(`/api/wo/start/${id}`, {method: 'POST'});
+                loadTasks();
+            }
+        }
+
+        function openModal(id) {
+            currentId = id;
+            document.getElementById('modalWoId').textContent = id.substring(0,8);
+            document.getElementById('finishModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('finishModal').style.display = 'none';
+            document.getElementById('prevGrid').innerHTML = '';
+            filesToUpload = [];
+        }
+
+        function previewFiles(files) {
+            const grid = document.getElementById('prevGrid');
+            filesToUpload = Array.from(files);
+            filesToUpload.forEach(f => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    grid.innerHTML += `<img src="${e.target.result}" class="preview-img">`;
+                }
+                reader.readAsDataURL(f);
+            });
+        }
+
+        async function submitFinish() {
+            const fd = new FormData();
+            fd.append('notes', document.getElementById('notes').value);
+            const parts = document.getElementById('parts').value.split(',').map(s=>s.trim()).filter(s=>s);
+            fd.append('parts_used', JSON.stringify(parts));
+            filesToUpload.forEach(f => fd.append('photos', f));
+
+            const btn = document.querySelector('.btn-finish');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...'; 
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`/api/wo/complete/${currentId}`, {method: 'POST', body: fd});
+                if(res.ok) {
+                    alert('Laporan Terkirim!');
+                    closeModal(); 
+                    loadTasks();
+                } else {
+                    alert('Gagal mengirim laporan.');
+                }
+            } catch(e) { alert('Error koneksi.'); }
+            finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Auto Load
+        loadTasks();
+        setInterval(loadTasks, 30000);
+    </script>
+</body>
+</html>
