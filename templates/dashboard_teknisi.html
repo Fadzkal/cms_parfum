@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Technician App | Prime Fragrance</title>
+    <title>Technician Dashboard | Prime Fragrance</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- VARIABLES (Navy Theme) --- */
         :root {
             --navy-dark: #0F172A;
             --blue-accent: #3B82F6;
+            --green-accent: #10B981;
+            --orange-accent: #F59E0B;
+            --red-accent: #EF4444;
             --bg-main: #F1F5F9;
             --white: #FFFFFF;
             --text-dark: #334155;
@@ -23,8 +25,8 @@
             --transition: all 0.3s ease;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-main);
@@ -34,7 +36,7 @@
             overflow: hidden;
         }
 
-        /* --- SIDEBAR --- */
+        /* Sidebar */
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--navy-dark);
@@ -45,291 +47,1597 @@
             box-shadow: 4px 0 20px rgba(0,0,0,0.1);
             transition: var(--transition);
         }
-        
-        /* Mobile Sidebar Handling */
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed; height: 100%; transform: translateX(-100%);
-            }
-            .sidebar.active { transform: translateX(0); box-shadow: 100vw 0 0 rgba(0,0,0,0.5); }
-        }
 
         .sidebar-header {
             padding: 25px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
             display: flex; align-items: center; gap: 12px;
         }
+
         .logo-icon { font-size: 1.5rem; color: var(--blue-accent); }
-        .logo-text { font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; }
+        .logo-text { font-weight: 800; font-size: 1.1rem; }
 
         .nav-menu { flex: 1; padding: 20px 15px; overflow-y: auto; }
-        
+
         .nav-link {
             display: flex; align-items: center; gap: 12px;
             padding: 12px 15px; border-radius: 10px;
             color: #CBD5E1; text-decoration: none;
-            font-weight: 500; transition: var(--transition);
-            margin-bottom: 5px;
+            font-weight: 500; margin-bottom: 5px;
+            transition: var(--transition);
+            cursor: pointer;
         }
-        .nav-link:hover { background-color: rgba(255,255,255,0.05); color: var(--white); transform: translateX(5px); }
-        .nav-link.active { background-color: var(--blue-accent); color: var(--white); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
-        
+
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.05); 
+            color: var(--white);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background-color: var(--blue-accent);
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
         .user-panel {
-            padding: 20px; border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 20px; 
+            border-top: 1px solid rgba(255,255,255,0.1);
             background-color: rgba(0,0,0,0.2);
         }
-        .user-info { font-weight: 700; font-size: 0.9rem; color: var(--white); margin-bottom: 5px; }
-        .btn-logout { color: #EF4444; text-decoration: none; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; font-weight: 600; transition: 0.2s; }
+
+        .user-info { 
+            font-weight: 700; 
+            font-size: 0.9rem;
+            margin-bottom: 5px; 
+        }
+
+        .btn-logout { 
+            color: #EF4444; 
+            text-decoration: none; 
+            font-size: 0.85rem; 
+            display: flex; 
+            align-items: center;
+            gap: 8px; 
+            font-weight: 600;
+            transition: 0.2s;
+        }
         .btn-logout:hover { color: #FCA5A5; }
 
-        /* --- MAIN CONTENT --- */
+        /* Main Content */
         .main-content {
-            flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative;
+            flex: 1; 
+            display: flex; 
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        /* Top Bar */
+        /* Header */
+        .mobile-header {
+            display: none;
+            padding: 15px;
+            background: var(--navy-dark);
+            color: white;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .app-bar {
-            background: var(--white); padding: 15px 20px;
-            display: flex; justify-content: space-between; align-items: center;
+            background: var(--white); 
+            padding: 20px 30px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
             border-bottom: 1px solid var(--border);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
-        .menu-btn { font-size: 1.4rem; color: var(--navy-dark); cursor: pointer; display: none; }
-        @media (max-width: 768px) { .menu-btn { display: block; } }
 
-        .page-title { font-size: 1.2rem; font-weight: 800; color: var(--navy-dark); margin-left: 10px; }
+        .menu-btn { 
+            display: none;
+            font-size: 1.4rem; 
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-dark);
+        }
 
-        /* Content Area */
-        .content-scroll { padding: 20px; overflow-y: auto; flex: 1; }
+        .page-title { 
+            font-size: 1.3rem; 
+            font-weight: 800; 
+            color: var(--navy-dark);
+        }
 
-        /* Task Card */
+        .header-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-badge {
+            background: #F1F5F9;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Content */
+        .content-scroll {
+            padding: 30px; 
+            overflow-y: auto; 
+            flex: 1;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            border-left: 4px solid var(--blue-accent);
+        }
+        .stat-card.warning { border-left-color: var(--orange-accent); }
+        .stat-card.success { border-left-color: var(--green-accent); }
+        .stat-card.danger { border-left-color: var(--red-accent); }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--navy-dark);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+            font-weight: 600;
+        }
+
+        /* Task Cards */
         .task-card {
-            background: var(--white); padding: 20px; border-radius: 12px;
-            box-shadow: var(--shadow); transition: var(--transition);
-            border-left: 4px solid var(--blue-accent); margin-bottom: 20px;
-            display: flex; flex-direction: column; gap: 10px;
+            background: var(--white); 
+            padding: 25px; 
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--blue-accent);
+            margin-bottom: 20px;
+            transition: var(--transition);
         }
-        
-        .task-header { display: flex; justify-content: space-between; align-items: center; }
-        .task-asset { font-weight: 700; font-size: 1.1rem; color: var(--navy-dark); }
-        
-        .task-prio { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; }
-        .prio-Kritis { background: #FEE2E2; color: #991B1B; }
-        .prio-Tinggi { background: #FFEDD5; color: #9A3412; }
-        .prio-Sedang { background: #EFF6FF; color: #1E40AF; }
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
 
-        .task-desc { font-size: 0.9rem; color: var(--text-gray); line-height: 1.5; }
-        .task-meta { font-size: 0.8rem; color: #94A3B8; display: flex; align-items: center; gap: 5px; }
+        .task-header { 
+            display: flex; 
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
 
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.95rem; transition: var(--transition); display: flex; justify-content: center; align-items: center; gap: 8px; }
-        .btn-start { background: var(--blue-accent); color: white; }
-        .btn-start:hover { background: #2563EB; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
-        .btn-finish { background: #10B981; color: white; }
-        .btn-finish:hover { background: #059669; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        .task-asset { 
+            font-weight: 700; 
+            font-size: 1.1rem;
+            color: var(--navy-dark);
+        }
+
+        .task-prio { 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-size: 0.75rem; 
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .prio-Kritis { background:#FEE2E2; color:#991B1B; }
+        .prio-Tinggi { background:#FFEDD5; color:#9A3412; }
+        .prio-Sedang { background:#EFF6FF; color:#1E40AF; }
+        .prio-Rendah { background:#F3F4F6; color:#6B7280; }
+
+        .task-desc { 
+            color: var(--text-gray);
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            background: #F8FAFC;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .btn { 
+            padding: 12px 20px; 
+            border-radius: 8px; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-start { 
+            background: var(--blue-accent); 
+            color: white; 
+        }
+        .btn-start:hover { 
+            background: #2563EB;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .btn-finish { 
+            background: var(--green-accent); 
+            color: white; 
+        }
+        .btn-finish:hover { 
+            background: #059669;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .btn:disabled {
+            background: #CBD5E1;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Schedule Cards */
+        .schedule-card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 15px;
+            border-left: 4px solid var(--green-accent);
+            transition: var(--transition);
+        }
+        .schedule-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .schedule-card.urgent {
+            border-left-color: var(--red-accent);
+            background: #FEF2F2;
+        }
+        .schedule-card.warning {
+            border-left-color: var(--orange-accent);
+            background: #FFFBEB;
+        }
+
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .schedule-asset {
+            font-weight: 700;
+            color: var(--navy-dark);
+            font-size: 1.1rem;
+        }
+
+        .schedule-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-segera { background: #FEE2E2; color: #991B1B; }
+        .status-mendekati { background: #FFEDD5; color: #9A3412; }
+        .status-datang { background: #D1FAE5; color: #065F46; }
+
+        .schedule-desc {
+            color: var(--text-gray);
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .schedule-meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Assignment Badge */
+        .assignment-badge {
+            background: #E0F2FE;
+            color: #0369A1;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-gray);
+        }
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #CBD5E1;
+        }
 
         /* Modal */
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--white); z-index: 300; display: none; flex-direction: column;
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none; 
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
         }
-        
-        .modal-header {
-            padding: 15px 20px; border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            background: #F8FAFC;
-        }
-        .modal-header h3 { color: var(--navy-dark); margin: 0; font-size: 1.2rem; }
-        
-        .modal-body { padding: 20px; flex: 1; overflow-y: auto; }
 
-        .form-label { font-weight: 600; color: var(--navy-dark); font-size: 0.9rem; margin-bottom: 8px; display: block; }
-        .form-input { width: 100%; padding: 12px; border: 1px solid #CBD5E1; border-radius: 8px; margin-bottom: 20px; font-family: inherit; font-size: 0.95rem; transition: 0.2s; }
-        .form-input:focus { border-color: var(--blue-accent); outline: none; }
+        .modal-content {
+            background: var(--white);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 20px 25px; 
+            background: #F8FAFC;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            color: var(--navy-dark);
+            font-size: 1.2rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-gray);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+        .close-btn:hover {
+            background: #E2E8F0;
+            color: var(--text-dark);
+        }
+
+        .modal-body { 
+            padding: 25px; 
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label { 
+            font-weight: 600; 
+            color: var(--navy-dark);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input, .form-textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border-radius: 8px; 
+            border: 2px solid var(--border);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--blue-accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            margin: 20px 0;
+        }
 
         .upload-zone {
-            border: 2px dashed #94A3B8; padding: 30px; text-align: center; border-radius: 12px;
-            background: #F1F5F9; margin-bottom: 20px; color: #64748B; cursor: pointer; transition: 0.2s;
+            border: 2px dashed #CBD5E1;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            background: #F8FAFC;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
         }
-        .upload-zone:active { background: #E2E8F0; }
-        
-        .preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 20px; }
-        .preview-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); }
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--blue-accent);
+            background: #EFF6FF;
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            color: var(--blue-accent);
+            margin-bottom: 10px;
+        }
+
+        .upload-text h4 {
+            color: var(--navy-dark);
+            margin-bottom: 5px;
+        }
+        .upload-text p {
+            color: var(--text-gray);
+            font-size: 0.85rem;
+        }
+
+        .file-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preview-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .preview-img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .preview-remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* Alert System */
+        .alert-area {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+            max-width: 400px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.3s ease;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .alert-success {
+            background: #D1FAE5;
+            color: #065F46;
+            border-left: 4px solid var(--green-accent);
+        }
+
+        .alert-error {
+            background: #FEE2E2;
+            color: #991B1B;
+            border-left: 4px solid var(--red-accent);
+        }
+
+        .alert-warning {
+            background: #FEF3C7;
+            color: #92400E;
+            border-left: 4px solid var(--orange-accent);
+        }
+
+        /* Schedule Filters */
+        .schedule-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 8px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--white);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed; 
+                height: 100%; 
+                transform: translateX(-100%);
+            }
+            .sidebar.active { 
+                transform: translateX(0); 
+                box-shadow: 100vw 0 0 rgba(0,0,0,0.5);
+            }
+            .mobile-header { display: flex; }
+            .menu-btn { display: block; }
+            .content-scroll { padding: 20px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .header-stats { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .task-meta { flex-direction: column; gap: 8px; }
+            .modal-content { margin: 10px; }
+            .preview-grid { grid-template-columns: repeat(3, 1fr); }
+            .schedule-filters { flex-direction: column; }
+        }
+
+        @media (max-width: 480px) {
+            .app-bar { padding: 15px 20px; }
+            .content-scroll { padding: 15px; }
+            .task-card { padding: 20px; }
+            .schedule-card { padding: 15px; }
+            .preview-grid { grid-template-columns: repeat(2, 1fr); }
+        }
     </style>
 </head>
+
 <body>
 
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div style="font-weight: 800; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-tools" style="color: var(--blue-accent);"></i> Teknisi
+        </div>
+        <i class="fas fa-bars menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('active')"></i>
+    </div>
+
+    <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <i class="fas fa-tools logo-icon"></i>
-            <div class="logo-text">TEKNISI APP</div>
+            <div class="logo-text">TEKNISI</div>
         </div>
-        
+
         <div class="nav-menu">
-            <a href="#" class="nav-link active"><i class="fas fa-clipboard-list"></i> Tugas Saya</a>
-            <a href="#" class="nav-link"><i class="fas fa-check-circle"></i> Selesai</a>
+            <a class="nav-link active" onclick="showSection('active')">
+                <i class="fas fa-clipboard-list"></i> Tugas Aktif
+            </a>
+            <a class="nav-link" onclick="showSection('completed')">
+                <i class="fas fa-check-circle"></i> Riwayat Selesai
+            </a>
+            <a class="nav-link" onclick="showSection('schedule')">
+                <i class="fas fa-calendar-alt"></i> Jadwal Maintenance
+            </a>
         </div>
-        
+
         <div class="user-panel">
             <div class="user-info" id="techName">Teknisi</div>
-            <a href="/logout" class="btn-logout"><i class="fas fa-right-from-bracket"></i> Logout</a>
+            <a href="/logout" class="btn-logout">
+                <i class="fas fa-right-from-bracket"></i> Logout
+            </a>
         </div>
     </div>
 
+    <!-- Main Content -->
     <div class="main-content">
         <div class="app-bar">
-            <div style="display: flex; align-items: center;">
-                <i class="fas fa-bars menu-btn" onclick="document.getElementById('sidebar').classList.toggle('active')"></i>
-                <div class="page-title">Daftar Tugas</div>
+            <div style="display:flex; align-items:center;">
+                <button class="menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('active')">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="page-title" id="pageTitle">Tugas Aktif</div>
             </div>
-            <div style="width: 35px; height: 35px; background: #F1F5F9; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--navy-dark);">
-                <i class="fas fa-bell"></i>
+
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <i class="fas fa-clock" style="color: var(--orange-accent);"></i>
+                    <span id="activeTasksCount">0</span> Aktif
+                </div>
+                <div class="stat-badge">
+                    <i class="fas fa-check" style="color: var(--green-accent);"></i>
+                    <span id="completedTasksCount">0</span> Selesai
+                </div>
+                <div class="stat-badge">
+                    <i class="fas fa-calendar" style="color: var(--blue-accent);"></i>
+                    <span id="upcomingSchedulesCount">0</span> Jadwal
+                </div>
+            </div>
+
+            <div style="width:40px;height:40px;border-radius:50%;background:#EEF2F7;display:flex;justify-content:center;align-items:center;cursor:pointer;">
+                <i class="fas fa-bell" style="color: var(--text-gray);"></i>
             </div>
         </div>
 
-        <div class="content-scroll" id="taskList">
-            <div style="text-align: center; margin-top: 50px; color: #94A3B8;">
-                <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><br><br>Memuat tugas...
+        <div class="content-scroll">
+            <!-- Stats Section -->
+            <div class="stats-grid" id="statsContainer">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalAssigned">0</div>
+                    <div class="stat-label">Total Ditugaskan</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-value" id="inProgress">0</div>
+                    <div class="stat-label">Dalam Pengerjaan</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-value" id="completed">0</div>
+                    <div class="stat-label">Selesai</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-value" id="urgent">0</div>
+                    <div class="stat-label">Prioritas Tinggi</div>
+                </div>
+            </div>
+
+            <!-- Active Tasks Section -->
+            <div id="activeSection">
+                <div id="taskList">
+                    <div class="empty-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <div>Memuat tugas...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completed Tasks Section -->
+            <div id="completedSection" style="display: none;">
+                <div id="completedTaskList">
+                    <div class="empty-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <div>Memuat riwayat...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Section -->
+            <div id="scheduleSection" style="display: none;">
+                <div class="schedule-filters">
+                    <select class="filter-select" id="scheduleFilterDays" onchange="loadSchedules()">
+                        <option value="7">7 Hari Mendatang</option>
+                        <option value="30">30 Hari Mendatang</option>
+                        <option value="all">Semua Jadwal</option>
+                    </select>
+                    <select class="filter-select" id="scheduleFilterType" onchange="loadSchedules()">
+                        <option value="">Semua Jenis</option>
+                        <option value="Preventif">Preventif</option>
+                        <option value="Predictive">Predictive</option>
+                        <option value="Kalibrasi">Kalibrasi</option>
+                        <option value="Inspeksi">Inspeksi</option>
+                    </select>
+                    <select class="filter-select" id="scheduleFilterStatus" onchange="loadSchedules()">
+                        <option value="Dijadwalkan">Dijadwalkan</option>
+                        <option value="Dalam Pengerjaan">Dalam Pengerjaan</option>
+                        <option value="">Semua Status</option>
+                    </select>
+                </div>
+
+                <div id="scheduleList">
+                    <div class="empty-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <div>Memuat jadwal...</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Finish Modal -->
     <div class="modal-overlay" id="finishModal">
-        <div class="modal-header">
-            <h3>Laporan Perbaikan</h3>
-            <button onclick="closeModal()" style="background:none; border:none; font-size:1.5rem; color: #64748B;">&times;</button>
-        </div>
-        <div class="modal-body">
-            <p style="color: #64748B; font-size: 0.85rem; margin-bottom: 20px;">
-                WO ID: <span id="modalWoId" style="font-family: monospace; font-weight: 700; color: var(--navy-dark);"></span>
-            </p>
-            
-            <label class="form-label">Komponen Diganti</label>
-            <textarea id="parts" class="form-input" rows="2" placeholder="Cth: Bearing, Seal, Sensor..."></textarea>
-            
-            <label class="form-label">Catatan Perbaikan</label>
-            <textarea id="notes" class="form-input" rows="4" placeholder="Jelaskan solusi yang dilakukan..."></textarea>
-            
-            <label class="form-label">Foto Bukti</label>
-            <div class="upload-zone" onclick="document.getElementById('fileIn').click()">
-                <i class="fas fa-camera" style="font-size: 2rem; margin-bottom: 10px; color: var(--blue-accent);"></i><br>
-                Tap untuk ambil foto
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Laporan Perbaikan</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
             </div>
-            <input type="file" id="fileIn" style="display:none;" multiple accept="image/*" onchange="previewFiles(this.files)">
-            
-            <div class="preview-grid" id="prevGrid"></div>
 
-            <button class="btn btn-finish" onclick="submitFinish()">Kirim Laporan</button>
+            <div class="modal-body">
+                <p style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 20px;">
+                    WO ID: <span id="modalWoId" style="font-weight:700; color: var(--blue-accent); font-family: monospace;"></span>
+                </p>
+
+                <div class="form-group">
+                    <label class="form-label">Komponen yang Rusak *</label>
+                    <input type="text" id="componentFailed" class="form-input" placeholder="Contoh: Bearing, Motor, Sensor, dll." required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Akar Masalah (Root Cause) *</label>
+                    <textarea id="rootCause" class="form-textarea" placeholder="Jelaskan penyebab utama kerusakan..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Komponen yang Diganti *</label>
+                    <textarea id="parts" class="form-textarea" placeholder="Pisahkan dengan koma. Contoh: Bearing 6201, Seal Oil, Belt V" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Catatan Perbaikan</label>
+                    <textarea id="notes" class="form-textarea" placeholder="Deskripsikan tindakan perbaikan yang dilakukan..."></textarea>
+                </div>
+
+                <div class="upload-section">
+                    <label class="form-label">Foto Dokumentasi</label>
+                    <p style="color: var(--text-gray); font-size: 0.85rem; margin-bottom: 10px;">
+                        Maksimal 5 foto, format JPG/PNG (maks. 5MB per foto)
+                    </p>
+                    
+                    <div class="upload-zone" id="uploadZone">
+                        <div class="upload-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="upload-text">
+                            <h4>Drop file di sini atau klik untuk upload</h4>
+                            <p>Upload foto sebelum, selama, dan setelah perbaikan</p>
+                        </div>
+                        <input type="file" id="fileInput" class="file-input" multiple accept="image/*">
+                    </div>
+
+                    <div class="preview-grid" id="previewGrid"></div>
+                </div>
+
+                <button class="btn btn-finish" onclick="submitFinish()" id="submitFinishBtn">
+                    <i class="fas fa-paper-plane"></i> Kirim Laporan
+                </button>
+            </div>
         </div>
     </div>
+
+    <!-- Alert Area -->
+    <div id="alertArea" class="alert-area"></div>
 
     <script>
-        document.getElementById('techName').textContent = sessionStorage.getItem('user_name') || 'Teknisi';
-        let currentId = null;
+        // Global variables
+        let currentSection = 'active';
+        let currentTaskId = null;
         let filesToUpload = [];
+        const MAX_FILES = 5;
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-        async function loadTasks() {
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set user info
+            loadUserInfo();
+            
+            // Initialize file upload
+            initializeFileUpload();
+            
+            // Load initial data
+            loadStats();
+            loadTasks();
+            
+            // Set auto refresh
+            setInterval(() => {
+                loadStats();
+                if (currentSection === 'active') loadTasks();
+                if (currentSection === 'completed') loadCompletedTasks();
+                if (currentSection === 'schedule') loadSchedules();
+            }, 30000);
+        });
+
+        // Load user information
+        async function loadUserInfo() {
             try {
-                const res = await fetch('/api/wo/assigned');
-                const tasks = await res.json();
-                const cont = document.getElementById('taskList');
-                cont.innerHTML = '';
-                
-                if(tasks.length === 0) {
-                    cont.innerHTML = `
-                        <div style="text-align:center; margin-top:50px; color:#94A3B8; padding: 40px;">
-                            <i class="fas fa-mug-hot" style="font-size:3rem; margin-bottom:15px; opacity:0.5;"></i><br>
-                            Tidak ada tugas aktif.<br>Silakan istirahat sejenak.
-                        </div>`;
-                    return;
+                const response = await fetch('/api/user-info');
+                if (response.ok) {
+                    const userInfo = await response.json();
+                    document.getElementById('techName').textContent = userInfo.name || userInfo.username;
+                    // Store in session for later use
+                    sessionStorage.setItem('user_name', userInfo.name);
+                    sessionStorage.setItem('username', userInfo.username);
                 }
-
-                tasks.forEach(t => {
-                    let btn = '';
-                    if(t.status === 'Ditugaskan') {
-                        btn = `<button class="btn btn-start" onclick="startTask('${t._id}')"><i class="fas fa-play"></i> Mulai Kerjakan</button>`;
-                    } else {
-                        btn = `<button class="btn btn-finish" onclick="openModal('${t._id}')"><i class="fas fa-check-circle"></i> Selesaikan</button>`;
-                    }
-
-                    cont.innerHTML += `
-                        <div class="task-card">
-                            <div class="task-header">
-                                <span class="task-asset">${t.asset_name}</span>
-                                <span class="task-prio prio-${t.priority}">${t.priority}</span>
-                            </div>
-                            <div class="task-desc">${t.description}</div>
-                            <div class="task-meta">
-                                <i class="far fa-clock"></i> ${new Date(t.timestamp_created*1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                            </div>
-                            ${btn}
-                        </div>
-                    `;
-                });
-            } catch(e) { console.error(e); }
-        }
-
-        async function startTask(id) {
-            if(confirm('Mulai kerjakan tugas ini sekarang?')) {
-                await fetch(`/api/wo/start/${id}`, {method: 'POST'});
-                loadTasks();
+            } catch (error) {
+                console.error('Error loading user info:', error);
+                document.getElementById('techName').textContent = 'Teknisi';
             }
         }
 
-        function openModal(id) {
-            currentId = id;
-            document.getElementById('modalWoId').textContent = id.substring(0,8);
+        // Alert System
+        function showAlert(message, type = 'success') {
+            const alertArea = document.getElementById('alertArea');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            
+            let icon = 'fa-check-circle';
+            if (type === 'error') icon = 'fa-exclamation-circle';
+            if (type === 'warning') icon = 'fa-exclamation-triangle';
+            
+            alertDiv.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <div>${message}</div>
+            `;
+            
+            alertArea.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 300);
+            }, 5000);
+        }
+
+        // Section Navigation
+        function showSection(section) {
+            currentSection = section;
+            
+            // Hide all sections
+            document.getElementById('activeSection').style.display = 'none';
+            document.getElementById('completedSection').style.display = 'none';
+            document.getElementById('scheduleSection').style.display = 'none';
+            
+            // Update nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            if (section === 'active') {
+                document.querySelector('.nav-link:nth-child(1)').classList.add('active');
+                document.getElementById('pageTitle').textContent = 'Tugas Aktif';
+                document.getElementById('activeSection').style.display = 'block';
+                loadTasks();
+            } else if (section === 'completed') {
+                document.querySelector('.nav-link:nth-child(2)').classList.add('active');
+                document.getElementById('pageTitle').textContent = 'Riwayat Selesai';
+                document.getElementById('completedSection').style.display = 'block';
+                loadCompletedTasks();
+            } else if (section === 'schedule') {
+                document.querySelector('.nav-link:nth-child(3)').classList.add('active');
+                document.getElementById('pageTitle').textContent = 'Jadwal Maintenance';
+                document.getElementById('scheduleSection').style.display = 'block';
+                loadSchedules();
+            }
+        }
+
+        // Load Stats
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats/technician');
+                if (response.ok) {
+                    const stats = await response.json();
+                    
+                    document.getElementById('totalAssigned').textContent = stats.assigned_work_orders;
+                    document.getElementById('inProgress').textContent = stats.in_progress_work_orders;
+                    document.getElementById('completed').textContent = stats.completed_work_orders;
+                    document.getElementById('activeTasksCount').textContent = stats.in_progress_work_orders;
+                    document.getElementById('completedTasksCount').textContent = stats.completed_work_orders;
+                    
+                    // Calculate urgent tasks
+                    const tasksResponse = await fetch('/api/wo/assigned');
+                    if (tasksResponse.ok) {
+                        const tasks = await tasksResponse.json();
+                        const urgentCount = tasks.filter(task => 
+                            task.priority === 'Tinggi' || task.priority === 'Kritis'
+                        ).length;
+                        document.getElementById('urgent').textContent = urgentCount;
+                    }
+
+                    // Load schedule count
+                    const scheduleResponse = await fetch('/api/schedule/technician');
+                    if (scheduleResponse.ok) {
+                        const schedules = await scheduleResponse.json();
+                        const upcomingSchedules = schedules.filter(schedule => 
+                            schedule.status === 'Dijadwalkan'
+                        );
+                        document.getElementById('upcomingSchedulesCount').textContent = upcomingSchedules.length;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load Active Tasks
+        async function loadTasks() {
+            try {
+                const response = await fetch('/api/wo/assigned');
+                if (response.ok) {
+                    const tasks = await response.json();
+                    renderTasks(tasks);
+                } else {
+                    throw new Error('Failed to load tasks');
+                }
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+                document.getElementById('taskList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>Gagal memuat tugas</div>
+                        <p style="margin-top: 10px;">${error.message}</p>
+                    </div>`;
+            }
+        }
+
+        // Load Completed Tasks
+        async function loadCompletedTasks() {
+            try {
+                const response = await fetch('/api/wo');
+                if (response.ok) {
+                    const allTasks = await response.json();
+                    const username = sessionStorage.getItem('username');
+                    const completedTasks = allTasks.filter(task => 
+                        task.assigned_to === username && 
+                        (task.status === 'Selesai' || task.status === 'Ditutup')
+                    );
+                    renderCompletedTasks(completedTasks);
+                } else {
+                    throw new Error('Failed to load completed tasks');
+                }
+            } catch (error) {
+                console.error('Error loading completed tasks:', error);
+                document.getElementById('completedTaskList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>Gagal memuat riwayat</div>
+                        <p style="margin-top: 10px;">${error.message}</p>
+                    </div>`;
+            }
+        }
+
+        // Load Schedules
+        async function loadSchedules() {
+            try {
+                const response = await fetch('/api/schedule/technician');
+                if (response.ok) {
+                    let schedules = await response.json();
+                    
+                    // Apply additional filters
+                    const daysFilter = document.getElementById('scheduleFilterDays').value;
+                    const typeFilter = document.getElementById('scheduleFilterType').value;
+                    const statusFilter = document.getElementById('scheduleFilterStatus').value;
+
+                    if (daysFilter !== 'all') {
+                        const days = parseInt(daysFilter);
+                        const currentTime = Math.floor(Date.now() / 1000);
+                        const targetTime = currentTime + (days * 24 * 60 * 60);
+                        schedules = schedules.filter(schedule => 
+                            schedule.scheduled_date <= targetTime
+                        );
+                    }
+
+                    if (typeFilter) {
+                        schedules = schedules.filter(schedule => 
+                            schedule.type === typeFilter
+                        );
+                    }
+
+                    if (statusFilter) {
+                        schedules = schedules.filter(schedule => 
+                            schedule.status === statusFilter
+                        );
+                    }
+
+                    renderSchedules(schedules);
+                } else {
+                    throw new Error('Failed to load schedules');
+                }
+            } catch (error) {
+                console.error('Error loading schedules:', error);
+                document.getElementById('scheduleList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>Gagal memuat jadwal</div>
+                        <p style="margin-top: 10px;">${error.message}</p>
+                    </div>`;
+            }
+        }
+
+        // Render Active Tasks
+        function renderTasks(tasks) {
+            const container = document.getElementById('taskList');
+            
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-mug-hot"></i>
+                        <div>Tidak ada tugas aktif.</div>
+                        <p style="margin-top: 10px;">Tunggu supervisor mengalokasikan tugas untuk Anda</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            
+            tasks.forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.className = 'task-card';
+                
+                // Format date
+                const taskDate = task.timestamp_created ? 
+                    new Date(task.timestamp_created * 1000).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : 'Tanggal tidak tersedia';
+                
+                let actionButton = '';
+                
+                if (task.status === 'Ditugaskan') {
+                    actionButton = `
+                        <button class="btn btn-start" onclick="startTask('${task._id}')">
+                            <i class="fas fa-play-circle"></i> Mulai Kerjakan
+                        </button>`;
+                } else if (task.status === 'Dalam Pengerjaan') {
+                    actionButton = `
+                        <button class="btn btn-finish" onclick="openFinishModal('${task._id}')">
+                            <i class="fas fa-flag-checkered"></i> Selesaikan
+                        </button>`;
+                }
+
+                taskElement.innerHTML = `
+                    <div class="task-header">
+                        <div class="task-asset">${task.asset_name}</div>
+                        <span class="task-prio prio-${task.priority}">${task.priority}</span>
+                    </div>
+                    
+                    <div class="task-desc">${task.description}</div>
+                    
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-tag"></i>
+                            ${task.type}
+                        </div>
+                        <div class="meta-item">
+                            <i class="far fa-clock"></i>
+                            ${taskDate}
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-user"></i>
+                            ${task.requested_by || 'Operator'}
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-info-circle"></i>
+                            ${task.status}
+                        </div>
+                    </div>
+                    
+                    ${actionButton}
+                `;
+                
+                container.appendChild(taskElement);
+            });
+        }
+
+        // Render Completed Tasks
+        function renderCompletedTasks(tasks) {
+            const container = document.getElementById('completedTaskList');
+            
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-check"></i>
+                        <div>Tidak ada riwayat tugas selesai.</div>
+                        <p style="margin-top: 10px;">Semua tugas yang diselesaikan akan muncul di sini</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            
+            tasks.forEach(task => {
+                const taskElement = document.createElement('div');
+                taskElement.className = 'task-card';
+                
+                // Format dates
+                const createdDate = task.timestamp_created ? 
+                    new Date(task.timestamp_created * 1000).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : 'N/A';
+                
+                const completedDate = task.timestamp_completed ? 
+                    new Date(task.timestamp_completed * 1000).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : 'N/A';
+
+                taskElement.innerHTML = `
+                    <div class="task-header">
+                        <div class="task-asset">${task.asset_name}</div>
+                        <span class="task-prio prio-${task.priority}">${task.priority}</span>
+                    </div>
+                    
+                    <div class="task-desc">${task.description}</div>
+                    
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-tag"></i>
+                            ${task.type}
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-play"></i>
+                            ${createdDate}
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-flag-checkered"></i>
+                            ${completedDate}
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-user-check"></i>
+                            ${task.verified_by || 'Belum diverifikasi'}
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 12px; background: #F8FAFC; border-radius: 8px;">
+                        <div style="font-size: 0.85rem; color: var(--text-gray);">
+                            <strong>Komponen Rusak:</strong> ${task.component_failed || 'Tidak ada data'}<br>
+                            <strong>Root Cause:</strong> ${task.root_cause || 'Tidak ada data'}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(taskElement);
+            });
+        }
+
+        // Render Schedules
+        function renderSchedules(schedules) {
+            const container = document.getElementById('scheduleList');
+            
+            if (schedules.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <div>Tidak ada jadwal maintenance.</div>
+                        <p style="margin-top: 10px;">Jadwal maintenance yang ditugaskan untuk Anda akan muncul di sini</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            
+            schedules.forEach(schedule => {
+                const scheduleElement = document.createElement('div');
+                
+                // Determine status and styling
+                const scheduleDate = new Date(schedule.scheduled_date * 1000);
+                const now = new Date();
+                const daysUntil = Math.ceil((scheduleDate - now) / (1000 * 60 * 60 * 24));
+                
+                let statusClass = '';
+                let statusText = '';
+                let cardClass = 'schedule-card';
+                
+                if (daysUntil <= 1) {
+                    statusClass = 'status-segera';
+                    statusText = 'SEGERA';
+                    cardClass += ' urgent';
+                } else if (daysUntil <= 3) {
+                    statusClass = 'status-mendekati';
+                    statusText = 'Mendekati';
+                    cardClass += ' warning';
+                } else {
+                    statusClass = 'status-datang';
+                    statusText = 'Akan Datang';
+                }
+
+                // Tampilkan badge untuk jadwal khusus
+                const assignmentBadge = schedule.assigned_to ? 
+                    `<div class="assignment-badge">
+                        <i class="fas fa-user-check"></i> Ditugaskan Khusus
+                    </div>` : '';
+
+                scheduleElement.className = cardClass;
+                
+                const formattedDate = scheduleDate.toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                let actionButton = '';
+                if (schedule.status === 'Dijadwalkan') {
+                    actionButton = `
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-start" onclick="startSchedule('${schedule._id}')" style="padding: 8px 15px; font-size: 0.85rem;">
+                                <i class="fas fa-play"></i> Mulai Pengerjaan
+                            </button>
+                        </div>
+                    `;
+                } else if (schedule.status === 'Dalam Pengerjaan') {
+                    actionButton = `
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-finish" onclick="completeSchedule('${schedule._id}')" style="padding: 8px 15px; font-size: 0.85rem;">
+                                <i class="fas fa-check"></i> Tandai Selesai
+                            </button>
+                        </div>
+                    `;
+                }
+
+                scheduleElement.innerHTML = `
+                    <div class="schedule-header">
+                        <div class="schedule-asset">${schedule.asset_name}</div>
+                        <span class="schedule-status ${statusClass}">${statusText}</span>
+                    </div>
+                    
+                    <div class="schedule-desc">${schedule.description}</div>
+                    
+                    <div class="schedule-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-tag"></i>
+                            ${schedule.type}
+                        </div>
+                        <div class="meta-item">
+                            <i class="far fa-calendar"></i>
+                            ${formattedDate}
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-stopwatch"></i>
+                            ${schedule.duration} menit
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-info-circle"></i>
+                            ${schedule.status}
+                        </div>
+                        ${assignmentBadge}
+                        ${daysUntil >= 0 ? `
+                            <div class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                ${daysUntil} hari lagi
+                            </div>
+                        ` : ''}
+                    </div>
+                    ${actionButton}
+                `;
+                
+                container.appendChild(scheduleElement);
+            });
+        }
+
+        // Start Task
+        async function startTask(id) {
+            if (confirm('Mulai kerjakan tugas ini?')) {
+                try {
+                    const response = await fetch(`/api/wo/start/${id}`, { 
+                        method: 'POST' 
+                    });
+                    
+                    if (response.ok) {
+                        showAlert('Tugas berhasil dimulai', 'success');
+                        loadTasks();
+                        loadStats();
+                    } else {
+                        const error = await response.json();
+                        showAlert(error.message || 'Gagal memulai tugas', 'error');
+                    }
+                } catch (error) {
+                    showAlert('Error memulai tugas: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Start Schedule
+        async function startSchedule(scheduleId) {
+            if (confirm('Mulai pengerjaan jadwal maintenance ini?')) {
+                try {
+                    const response = await fetch(`/api/schedule/update/${scheduleId}`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            status: 'Dalam Pengerjaan'
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        showAlert('Jadwal maintenance berhasil dimulai', 'success');
+                        loadSchedules();
+                    } else {
+                        const error = await response.json();
+                        showAlert(error.message || 'Gagal memulai jadwal', 'error');
+                    }
+                } catch (error) {
+                    showAlert('Error memulai jadwal: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Complete Schedule
+        async function completeSchedule(scheduleId) {
+            if (confirm('Tandai jadwal maintenance ini sebagai selesai?')) {
+                try {
+                    const response = await fetch(`/api/schedule/update/${scheduleId}`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            status: 'Selesai',
+                            completed_by: sessionStorage.getItem('username')
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        showAlert('Jadwal maintenance berhasil diselesaikan', 'success');
+                        loadSchedules();
+                    } else {
+                        const error = await response.json();
+                        showAlert(error.message || 'Gagal menyelesaikan jadwal', 'error');
+                    }
+                } catch (error) {
+                    showAlert('Error menyelesaikan jadwal: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // File Upload Handling
+        function initializeFileUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadZone = document.getElementById('uploadZone');
+            
+            // Click on upload zone triggers file input
+            uploadZone.addEventListener('click', (e) => {
+                if (e.target !== fileInput) {
+                    fileInput.click();
+                }
+            });
+            
+            // Handle file selection
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            // Drag and drop functionality
+            uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            });
+            
+            uploadZone.addEventListener('dragleave', () => {
+                uploadZone.classList.remove('dragover');
+            });
+            
+            uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length) {
+                    handleFiles(e.dataTransfer.files);
+                }
+            });
+        }
+        
+        function handleFileSelect(e) {
+            handleFiles(e.target.files);
+            // Reset the input to allow selecting the same file again
+            e.target.value = '';
+        }
+        
+        function handleFiles(files) {
+            if (filesToUpload.length + files.length > MAX_FILES) {
+                showAlert(`Maksimal ${MAX_FILES} file yang dapat diupload`, 'error');
+                return;
+            }
+            
+            for (let file of files) {
+                if (filesToUpload.length >= MAX_FILES) break;
+                
+                // Check file type
+                if (!file.type.match('image.*')) {
+                    showAlert('Hanya file gambar (JPG, PNG, GIF) yang diizinkan', 'error');
+                    continue;
+                }
+                
+                // Check file size
+                if (file.size > MAX_FILE_SIZE) {
+                    showAlert(`File ${file.name} terlalu besar (maks. 5MB)`, 'error');
+                    continue;
+                }
+                
+                // Add to files to upload
+                filesToUpload.push(file);
+            }
+            
+            updatePreview();
+        }
+        
+        function updatePreview() {
+            const previewGrid = document.getElementById('previewGrid');
+            previewGrid.innerHTML = '';
+            
+            if (filesToUpload.length === 0) {
+                return;
+            }
+            
+            filesToUpload.forEach((file, index) => {
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+                    
+                    previewItem.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview" class="preview-img">
+                        <button type="button" class="preview-remove" onclick="removeFile(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    
+                    previewGrid.appendChild(previewItem);
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        function removeFile(index) {
+            filesToUpload.splice(index, 1);
+            updatePreview();
+        }
+
+        // Modal Functions
+        function openFinishModal(id) {
+            currentTaskId = id;
+            document.getElementById('modalWoId').textContent = id.substring(0, 8);
+            
+            // Reset form
+            document.getElementById('componentFailed').value = '';
+            document.getElementById('rootCause').value = '';
+            document.getElementById('parts').value = '';
+            document.getElementById('notes').value = '';
+            
+            // Reset files
+            filesToUpload = [];
+            updatePreview();
+            
             document.getElementById('finishModal').style.display = 'flex';
         }
 
         function closeModal() {
             document.getElementById('finishModal').style.display = 'none';
-            document.getElementById('prevGrid').innerHTML = '';
-            filesToUpload = [];
         }
 
-        function previewFiles(files) {
-            const grid = document.getElementById('prevGrid');
-            filesToUpload = Array.from(files);
-            filesToUpload.forEach(f => {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    grid.innerHTML += `<img src="${e.target.result}" class="preview-img">`;
-                }
-                reader.readAsDataURL(f);
-            });
-        }
-
+        // Submit Finish Report
         async function submitFinish() {
-            const fd = new FormData();
-            fd.append('notes', document.getElementById('notes').value);
-            const parts = document.getElementById('parts').value.split(',').map(s=>s.trim()).filter(s=>s);
-            fd.append('parts_used', JSON.stringify(parts));
-            filesToUpload.forEach(f => fd.append('photos', f));
-
-            const btn = document.querySelector('.btn-finish');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...'; 
-            btn.disabled = true;
-
+            const componentFailed = document.getElementById('componentFailed').value.trim();
+            const rootCause = document.getElementById('rootCause').value.trim();
+            const parts = document.getElementById('parts').value.trim();
+            
+            // Validation
+            if (!componentFailed || !rootCause || !parts) {
+                showAlert('Harap isi semua field yang wajib diisi (ditandai dengan *)', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('component_failed', componentFailed);
+            formData.append('root_cause', rootCause);
+            formData.append('notes', document.getElementById('notes').value);
+            
+            // Process parts
+            const partsArray = parts.split(',')
+                .map(part => part.trim())
+                .filter(part => part.length > 0);
+            formData.append('parts_used', JSON.stringify(partsArray));
+            
+            // Append files
+            filesToUpload.forEach(file => {
+                formData.append('photos', file);
+            });
+            
+            const submitBtn = document.getElementById('submitFinishBtn');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+            submitBtn.disabled = true;
+            
             try {
-                const res = await fetch(`/api/wo/complete/${currentId}`, {method: 'POST', body: fd});
-                if(res.ok) {
-                    alert('Laporan Terkirim!');
-                    closeModal(); 
+                const response = await fetch(`/api/wo/complete/${currentTaskId}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    showAlert('Laporan perbaikan berhasil dikirim! Menunggu verifikasi supervisor.', 'success');
+                    closeModal();
                     loadTasks();
+                    loadStats();
                 } else {
-                    alert('Gagal mengirim laporan.');
+                    const error = await response.json();
+                    showAlert(error.message || 'Gagal mengirim laporan', 'error');
                 }
-            } catch(e) { alert('Error koneksi.'); }
-            finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+            } catch (error) {
+                showAlert('Error mengirim laporan: ' + error.message, 'error');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
             }
         }
 
-        // Auto Load
-        loadTasks();
-        setInterval(loadTasks, 30000);
+        // Close modal when clicking outside
+        document.getElementById('finishModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Handle escape key to close modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
     </script>
 </body>
 </html>

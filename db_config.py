@@ -1,3 +1,4 @@
+# db_config.py
 from pymongo import MongoClient
 
 # Konfigurasi MongoDB

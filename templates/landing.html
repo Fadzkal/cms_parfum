@@ -21,7 +21,7 @@
         :root {
             /* Palette Biru Dongker (Navy Theme) */
             --navy-darkest: #020617;
-            --navy-dark: #0F172A;    /* Primary Sidebar Color */
+            --navy-dark: #0F172A;    /* Primary Navbar Color */
             --navy-medium: #1E293B;  /* Card Backgrounds */
             --navy-light: #334155;   /* Borders/Accents */
             
@@ -35,7 +35,6 @@
             --bg-main: #F1F5F9;      /* Main Content Background */
             
             /* Layout */
-            --sidebar-width: 280px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -52,30 +51,38 @@
         }
 
         /* =========================================
-           2. SIDEBAR NAVIGATION (LEFT SIDE)
+           2. STICKY NAVBAR (TOP)
            ========================================= */
-        .sidebar {
+        .navbar {
             position: fixed;
             top: 0;
             left: 0;
-            width: var(--sidebar-width);
-            height: 100vh;
+            width: 100%;
+            height: 80px;
             background: var(--navy-dark);
             color: var(--text-white);
             z-index: 1000;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
             transition: var(--transition);
-            border-right: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
         }
 
-        .sidebar-header {
-            padding: 30px 25px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+        .navbar.scrolled {
+            background: rgba(15, 23, 42, 0.95);
+            height: 70px;
+        }
+
+        .navbar-brand {
             display: flex;
             align-items: center;
             gap: 12px;
+            text-decoration: none;
+            color: var(--text-white);
         }
 
         .logo-icon {
@@ -91,31 +98,28 @@
         }
 
         .nav-menu {
-            flex: 1;
-            padding: 30px 15px;
-            overflow-y: auto;
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            align-items: center;
+            gap: 10px;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 15px;
-            padding: 14px 20px;
+            gap: 8px;
+            padding: 10px 18px;
             text-decoration: none;
             color: var(--text-gray);
             font-weight: 500;
-            border-radius: 12px;
+            border-radius: 8px;
             transition: var(--transition);
             position: relative;
+            font-size: 0.95rem;
         }
 
         .nav-item:hover {
             background: rgba(255,255,255,0.05);
             color: var(--text-white);
-            transform: translateX(5px);
         }
 
         .nav-item.active {
@@ -124,66 +128,80 @@
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
 
-        .nav-item i { width: 20px; text-align: center; font-size: 1.1rem; }
+        .nav-item i { font-size: 1rem; }
 
-        .sidebar-footer {
-            padding: 25px;
-            background: var(--navy-darkest);
-            border-top: 1px solid rgba(255,255,255,0.05);
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .login-btn {
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 100%;
-            padding: 14px;
+            padding: 10px 24px;
             background: var(--gold-accent);
             color: white;
             text-decoration: none;
             border-radius: 50px;
             font-weight: 700;
             transition: var(--transition);
-            gap: 10px;
+            gap: 8px;
+            font-size: 0.9rem;
         }
 
         .login-btn:hover {
             background: #d97706;
-            transform: translateY(-3px);
+            transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        /* Mobile Toggle */
+        .menu-toggle {
+            display: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .mobile-nav {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            background: var(--navy-dark);
+            padding: 20px;
+            transform: translateY(-100%);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 999;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .mobile-nav.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .mobile-nav .nav-menu {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .mobile-nav .nav-item {
+            width: 100%;
+            justify-content: flex-start;
         }
 
         /* =========================================
            3. MAIN CONTENT AREA
            ========================================= */
         .main-wrapper {
-            margin-left: var(--sidebar-width);
-            width: calc(100% - var(--sidebar-width));
-            min-height: 100vh;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        /* Mobile Toggle */
-        .mobile-header {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
+            margin-top: 80px;
             width: 100%;
-            height: 70px;
-            background: var(--navy-dark);
-            z-index: 900;
-            padding: 0 20px;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: var(--shadow);
-        }
-
-        .menu-toggle {
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
+            min-height: 100vh;
+            position: relative;
         }
 
         /* =========================================
@@ -191,7 +209,7 @@
            ========================================= */
         .hero {
             position: relative;
-            height: 100vh;
+            height: calc(100vh - 80px);
             width: 100%;
             overflow: hidden;
             display: flex;
@@ -439,19 +457,51 @@
         .step-card h4 { font-size: 1.2rem; margin-bottom: 10px; }
         .step-card p { font-size: 0.9rem; color: #94A3B8; }
 
-        /* TECH STACK TABS */
+        /* TECH STACK TABS - IMPROVED */
+        .tech-section {
+            background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tech-section::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            z-index: 0;
+        }
+
         .tabs-container {
             background: white;
             border-radius: 24px;
             padding: 50px;
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .tabs-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--blue-accent), var(--gold-accent));
+            z-index: 1;
         }
 
         .tabs-nav {
             display: flex;
-            gap: 20px;
+            gap: 10px;
             border-bottom: 1px solid #E2E8F0;
             margin-bottom: 40px;
+            flex-wrap: wrap;
         }
 
         .tab-btn {
@@ -462,18 +512,43 @@
             font-size: 1rem;
             color: #64748B;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
+            border-radius: 12px 12px 0 0;
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--blue-accent);
+            transform: scaleX(0);
             transition: var(--transition);
         }
 
         .tab-btn.active {
             color: var(--blue-accent);
-            border-bottom-color: var(--blue-accent);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .tab-btn.active::after {
+            transform: scaleX(1);
+        }
+
+        .tab-btn:hover {
+            color: var(--blue-accent);
+            background: rgba(59, 130, 246, 0.03);
         }
 
         .tab-pane {
             display: none;
-            grid-template-columns: 1.5fr 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 50px;
             align-items: center;
             animation: fadeIn 0.5s ease;
@@ -481,22 +556,597 @@
 
         .tab-pane.active { display: grid; }
 
+        .tech-content {
+            padding-right: 20px;
+        }
+
+        .tech-content h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--navy-dark);
+        }
+
+        .tech-content p {
+            color: #64748B;
+            margin-bottom: 20px;
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+
+        .tech-highlights {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .tech-highlight {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #475569;
+        }
+
+        .tech-highlight i {
+            color: var(--blue-accent);
+            font-size: 1.1rem;
+        }
+
         .tech-list {
-            display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px;
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+            margin-top: 20px;
         }
 
         .tech-badge {
-            padding: 8px 16px;
+            padding: 10px 18px;
             background: #F1F5F9;
-            border-radius: 8px;
+            border-radius: 10px;
             color: var(--navy-dark);
             font-weight: 600;
             font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .tech-badge:hover {
+            background: #E2E8F0;
+            transform: translateY(-2px);
+            border-color: var(--blue-accent);
+        }
+
+        .tech-badge i {
+            font-size: 1.1rem;
+        }
+
+        .tab-img-container {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            height: 350px;
         }
 
         .tab-img {
-            border-radius: 16px;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .tab-img-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(15, 23, 42, 0.1), transparent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .tab-img-container:hover .tab-img-overlay {
+            opacity: 1;
+        }
+
+        .tab-img-container:hover .tab-img {
+            transform: scale(1.05);
+        }
+
+        .img-badge {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--navy-dark);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .tab-img-container:hover .img-badge {
+            transform: translateY(0);
+        }
+
+        /* ARTIKEL SECTION - IMPROVED */
+        .articles-section {
+            background-color: #F8FAFC;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .articles-section::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .article-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .article-card:hover {
+            transform: translateY(-10px);
             box-shadow: var(--shadow-lg);
+        }
+
+        .article-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--blue-accent);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            z-index: 2;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .article-img-container {
+            position: relative;
+            overflow: hidden;
+            height: 220px;
+        }
+
+        .article-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .article-card:hover .article-img {
+            transform: scale(1.1);
+        }
+
+        .article-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(15, 23, 42, 0.7));
+            opacity: 0;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .article-card:hover .article-overlay {
+            opacity: 1;
+        }
+
+        .read-more-btn {
+            background: var(--gold-accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            transform: translateY(20px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .article-card:hover .read-more-btn {
+            transform: translateY(0);
+        }
+
+        .read-more-btn:hover {
+            background: #d97706;
+        }
+
+        .article-content {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+            color: #94A3B8;
+        }
+
+        .article-date {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .article-category {
+            background: #F1F5F9;
+            color: var(--navy-dark);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .article-content h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--navy-dark);
+            line-height: 1.4;
+            transition: var(--transition);
+        }
+
+        .article-card:hover .article-content h3 {
+            color: var(--blue-accent);
+        }
+
+        .article-excerpt {
+            color: #64748B;
+            margin-bottom: 20px;
+            flex-grow: 1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .article-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid #F1F5F9;
+        }
+
+        .article-author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #64748B;
+        }
+
+        .author-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--blue-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .article-stats {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.8rem;
+            color: #94A3B8;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* PRODUCTS SECTION - IMPROVED */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: var(--gold-accent);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 2;
+        }
+
+        .product-img-container {
+            position: relative;
+            overflow: hidden;
+            height: 300px;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .product-card:hover .product-img {
+            transform: scale(1.05);
+        }
+
+        .product-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(15, 23, 42, 0.8));
+            opacity: 0;
+            transition: var(--transition);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .product-card:hover .product-overlay {
+            opacity: 1;
+        }
+
+        .quick-view-btn {
+            background: var(--blue-accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            transform: translateY(20px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .product-card:hover .quick-view-btn {
+            transform: translateY(0);
+        }
+
+        .quick-view-btn:hover {
+            background: #2563EB;
+        }
+
+        .product-content {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: var(--navy-dark);
+        }
+
+        .product-category {
+            color: var(--blue-accent);
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .product-description {
+            color: #64748B;
+            margin-bottom: 20px;
+            flex-grow: 1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .product-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .feature-tag {
+            background: #F1F5F9;
+            color: var(--navy-dark);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .stars {
+            color: var(--gold-accent);
+        }
+
+        .rating-count {
+            color: #64748B;
+            font-size: 0.9rem;
+        }
+
+        /* ABOUT SECTION - IMPROVED */
+        .about-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .about-image {
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .about-image img {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .about-image:hover img {
+            transform: scale(1.05);
+        }
+
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), transparent);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .about-image:hover .image-overlay {
+            opacity: 1;
+        }
+
+        .about-content h3 {
+            font-size: 2.2rem;
+            color: var(--navy-dark);
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .about-content p {
+            color: #64748B;
+            margin-bottom: 25px;
+            line-height: 1.7;
+            font-size: 1.1rem;
+        }
+
+        .feature-list {
+            display: grid;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            padding: 15px;
+            border-radius: 12px;
+            transition: var(--transition);
+        }
+
+        .feature-item:hover {
+            background: #F8FAFC;
+            transform: translateX(5px);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: #EFF6FF;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--blue-accent);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .feature-text strong {
+            color: var(--navy-dark);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .feature-text span {
+            color: #64748B;
+            font-size: 0.9rem;
         }
 
         /* FOOTER */
@@ -544,45 +1194,90 @@
 
         /* Responsive */
         @media (max-width: 1024px) {
-            .sidebar { transform: translateX(-100%); }
-            .main-wrapper { margin-left: 0; width: 100%; }
-            .mobile-header { display: flex; }
+            .navbar {
+                padding: 0 20px;
+            }
+            
+            .nav-menu {
+                display: none;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
             .hero h1 { font-size: 3rem; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .footer-grid { grid-template-columns: 1fr 1fr; }
-            .sidebar.active { transform: translateX(0); box-shadow: 100vw 0 0 rgba(0,0,0,0.5); }
             .workflow-steps { grid-template-columns: 1fr 1fr; gap: 50px; }
             .workflow-steps::after { display: none; }
             .tab-pane { grid-template-columns: 1fr; }
+            .about-container { grid-template-columns: 1fr; gap: 40px; }
+            .products-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+            .articles-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
         }
 
         @media (max-width: 640px) {
+            .navbar {
+                height: 70px;
+            }
+            
+            .main-wrapper {
+                margin-top: 70px;
+            }
+            
+            .hero {
+                height: calc(100vh - 70px);
+            }
+            
             .hero h1 { font-size: 2.5rem; }
             .stats-grid { grid-template-columns: 1fr; }
             .footer-grid { grid-template-columns: 1fr; }
             .hero-btns { flex-direction: column; }
             .btn-outline { width: 100%; justify-content: center; }
             section { padding: 60px 20px; }
+            
+            .navbar-actions {
+                gap: 10px;
+            }
+            
+            .login-btn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+            
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .article-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .article-stats {
+                width: 100%;
+                justify-content: space-between;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="mobile-header">
-        <div class="logo-text" style="color: white;"><i class="fas fa-cube"></i> PrimeFragrance</div>
-        <div class="menu-toggle" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </div>
+    <nav class="navbar" id="navbar">
+        <a href="#hero" class="navbar-brand">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Prime Fragrance Logo" class="logo-icon" style="height: 30px; margin-right: 10px;">
+    
+    <div class="logo-text">
+        PrimeFragrance<br>
+        <span style="font-size: 0.7rem; font-weight: 400; color: var(--text-gray); text-transform: uppercase;">Technologies</span>
     </div>
-
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <i class="fas fa-flask logo-icon"></i>
-            <div class="logo-text">
-                PrimeFragrance<br>
-                <span style="font-size: 0.75rem; font-weight: 400; color: var(--text-gray); text-transform: uppercase;">Technologies</span>
-            </div>
-        </div>
+</a>
 
         <div class="nav-menu">
             <a href="#hero" class="nav-item active" onclick="setActive(this)">
@@ -591,8 +1286,14 @@
             <a href="#about" class="nav-item" onclick="setActive(this)">
                 <i class="fas fa-info-circle"></i> Tentang
             </a>
+            <a href="#products" class="nav-item" onclick="setActive(this)">
+                <i class="fas fa-cube"></i> Produk
+            </a>
+            <a href="#articles" class="nav-item" onclick="setActive(this)">
+                <i class="fas fa-newspaper"></i> Artikel
+            </a>
             <a href="#features" class="nav-item" onclick="setActive(this)">
-                <i class="fas fa-layer-group"></i> Fitur Utama
+                <i class="fas fa-layer-group"></i> Fitur
             </a>
             <a href="#tech" class="nav-item" onclick="setActive(this)">
                 <i class="fas fa-microchip"></i> Teknologi
@@ -600,38 +1301,65 @@
             <a href="#workflow" class="nav-item" onclick="setActive(this)">
                 <i class="fas fa-project-diagram"></i> Alur Kerja
             </a>
-            <a href="#pricing" class="nav-item" onclick="setActive(this)">
-                <i class="fas fa-tags"></i> Harga
-            </a>
             <a href="#contact" class="nav-item" onclick="setActive(this)">
                 <i class="fas fa-envelope"></i> Kontak
             </a>
         </div>
 
-        <div class="sidebar-footer">
+        <div class="navbar-actions">
             <a href="/login" class="login-btn">
                 <i class="fas fa-right-to-bracket"></i> Login Portal
             </a>
-            <div style="text-align: center; font-size: 0.75rem; color: var(--text-gray); margin-top: 15px;">
-                &copy; 2025 Prime Sys v3.0
+            <div class="menu-toggle" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
             </div>
         </div>
     </nav>
 
+    <div class="mobile-nav" id="mobileNav">
+        <div class="nav-menu">
+            <a href="#hero" class="nav-item active" onclick="setActive(this); closeMobileMenu();">
+                <i class="fas fa-home"></i> Beranda
+            </a>
+            <a href="#about" class="nav-item" onclick="setActive(this); closeMobileMenu();">
+                <i class="fas fa-info-circle"></i> Tentang
+            </a>
+            <a href="#products" class="nav-item" onclick="setActive(this); closeMobileMenu();">
+                <i class="fas fa-cube"></i> Produk
+            </a>
+            <a href="#articles" class="nav-item" onclick="setActive(this); closeMobileMenu();">
+                <i class="fas fa-newspaper"></i> Artikel
+            </a>
+            <a href="#features" class="nav-item" onclick="setActive(this); closeMobileMenu();">
+                <i class="fas fa-layer-group"></i> Fitur
+            </a>
+            <a href="#tech" class="nav-item" onclick="setActive(this); closeMobileMenu();">
+                <i class="fas fa-microchip"></i> Teknologi
+            </a>
+            <a href="#workflow" class="nav-item" onclick="setActive(this); closeMobileMenu();">
+                <i class="fas fa-project-diagram"></i> Alur Kerja
+            </a>
+            <a href="#contact" class="nav-item" onclick="setActive(this); closeMobileMenu();">
+                <i class="fas fa-envelope"></i> Kontak
+            </a>
+        </div>
+    </div>
+
     <div class="main-wrapper">
         
         <section id="hero" class="hero">
-            <video class="video-bg" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1920&q=80">
-                <source src="{{ url_for('static', filename='videos/hero-bg.mp4') }}" type="video/mp4">
+            <!-- Video Background -->
+            <video autoplay muted loop class="video-bg">
+                <source src="{{ url_for('static', filename='vidio/vidio1.mp4') }}" type="video/mp4">
+                Browser Anda tidak mendukung video HTML5.
             </video>
             <div class="hero-overlay"></div>
-
             <div class="hero-content">
                 <div class="badge-hero"><i class="fas fa-bolt"></i> #1 Manufacturing System in Asia</div>
                 <h1>Digital Transformation for<br>Fragrance Industry</h1>
                 <p>Tingkatkan produktivitas pabrik dengan pemantauan aset real-time, pemeliharaan prediktif berbasis AI, dan manajemen inventaris otomatis.</p>
                 <div class="hero-btns">
-                    <a href="/login" class="login-btn" style="width: auto; padding: 14px 35px;">Akses Dashboard</a>
+                    <a href="/login" class="login-btn" style="width: auto; padding: 14px 35px;">Login Portal</a>
                     <a href="#about" class="btn-outline">Pelajari Lebih Lanjut</a>
                 </div>
             </div>
@@ -665,27 +1393,292 @@
                 <p>Dalam industri wewangian, presisi adalah segalanya. Downtime mesin berarti kerugian kualitas dan biaya. Kami hadir untuk memastikan lini produksi Anda berjalan tanpa henti.</p>
             </div>
             
-            <div class="features-grid" style="grid-template-columns: 1fr 1fr; align-items: center; gap: 60px;">
-                <img src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=800&q=80" alt="Engineer" style="border-radius: 24px; box-shadow: var(--shadow-lg);">
-                <div>
-                    <h3 style="font-size: 2rem; color: var(--navy-dark); margin-bottom: 20px;">Integrasi Menyeluruh</h3>
-                    <p style="color: #64748B; margin-bottom: 20px;">
-                        Sistem kami bukan sekadar pencatat log. Ini adalah ekosistem digital yang menghubungkan sensor getaran mesin (IoT) langsung ke dashboard manajer, memberikan wawasan yang tidak pernah Anda miliki sebelumnya.
-                    </p>
-                    <ul style="display: grid; gap: 15px;">
-                        <li style="display: flex; gap: 15px; align-items: center;">
-                            <i class="fas fa-check-circle" style="color: var(--blue-accent); font-size: 1.2rem;"></i>
-                            <span style="font-weight: 500; color: var(--navy-dark);">Eliminasi Dokumen Kertas</span>
-                        </li>
-                        <li style="display: flex; gap: 15px; align-items: center;">
-                            <i class="fas fa-check-circle" style="color: var(--blue-accent); font-size: 1.2rem;"></i>
-                            <span style="font-weight: 500; color: var(--navy-dark);">Prediksi Kerusakan Mesin</span>
-                        </li>
-                        <li style="display: flex; gap: 15px; align-items: center;">
-                            <i class="fas fa-check-circle" style="color: var(--blue-accent); font-size: 1.2rem;"></i>
-                            <span style="font-weight: 500; color: var(--navy-dark);">Audit Trail Lengkap</span>
-                        </li>
-                    </ul>
+            <div class="about-container">
+                <div class="about-image">
+                    <img src="{{ url_for('static', filename='images/perusahaan1.png') }}" alt="Prime Fragrance Technologies">
+                    <div class="image-overlay"></div>
+                </div>
+                <div class="about-content">
+                    <h3>Integrasi Menyeluruh untuk Efisiensi Maksimal</h3>
+                    <p>Sistem kami bukan sekadar pencatat log. Ini adalah ekosistem digital yang menghubungkan sensor getaran mesin (IoT) langsung ke dashboard manajer, memberikan wawasan yang tidak pernah Anda miliki sebelumnya.</p>
+                    
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="feature-text">
+                                <strong>Eliminasi Dokumen Kertas</strong>
+                                <span>Digitalisasi lengkap proses kerja mengurangi biaya operasional hingga 40%</span>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="feature-text">
+                                <strong>Prediksi Kerusakan Mesin</strong>
+                                <span>AI menganalisa data sensor untuk memprediksi maintenance sebelum kerusakan terjadi</span>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="feature-text">
+                                <strong>Audit Trail Lengkap</strong>
+                                <span>Setiap aktivitas tercatat secara real-time untuk compliance dan quality control</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="products">
+            <div class="section-title">
+                <span class="sub-title">Koleksi Eksklusif</span>
+                <h2>Produk Unggulan Kami</h2>
+                <p>Jelajahi rangkaian parfum premium kami yang dibuat dengan teknologi ekstraksi terbaru dan bahan alami terpilih. Setiap wewangian dirancang untuk menciptakan pengalaman sensorik yang tak terlupakan.</p>
+            </div>
+
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-badge">BEST SELLER</div>
+                    <div class="product-img-container">
+                        <img src="{{ url_for('static', filename='images/foto_produk1.png') }}" alt="Flora Nocture" class="product-img">
+                        <div class="product-overlay">
+                            <button class="quick-view-btn">
+                                <i class="fas fa-eye"></i> Quick View
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-content">
+                        <h3>FLORA NOCTURE</h3>
+                        <div class="product-category">EAU DE PARFUM</div>
+                        
+                        <div class="product-rating">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span class="rating-count">(128 reviews)</span>
+                        </div>
+                        
+                        <p class="product-description">
+                            Sebuah wewangian magis yang terinspirasi oleh taman mekar di malam hari. Menggabungkan aroma melati, gardenia, dan sedikit sentuhan vanilla untuk menciptakan kesan elegan dan misterius yang bertahan sepanjang malam. Cocok untuk acara formal dan momen spesial.
+                        </p>
+                        
+                        <div class="product-features">
+                            <span class="feature-tag">Long Lasting</span>
+                            <span class="feature-tag">Floral</span>
+                            <span class="feature-tag">Evening Wear</span>
+                            <span class="feature-tag">Elegant</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-badge">NEW ARRIVAL</div>
+                    <div class="product-img-container">
+                        <img src="{{ url_for('static', filename='images/foto_produk2.png') }}" alt="Citrus Blossom" class="product-img">
+                        <div class="product-overlay">
+                            <button class="quick-view-btn">
+                                <i class="fas fa-eye"></i> Quick View
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-content">
+                        <h3>CITRUS BLOSSOM</h3>
+                        <div class="product-category">EAU DE PARFUM</div>
+                        
+                        <div class="product-rating">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                            <span class="rating-count">(94 reviews)</span>
+                        </div>
+                        
+                        <p class="product-description">
+                            Wewangian segar yang membangkitkan semangat dengan paduan jeruk bergamot, lemon, dan grapefruit yang menyegarkan. Dilengkapi dengan nada dasar musk yang lembut, cocok untuk aktivitas sehari-hari dan suasana casual. Memberikan energi positif sepanjang hari.
+                        </p>
+                        
+                        <div class="product-features">
+                            <span class="feature-tag">Fresh</span>
+                            <span class="feature-tag">Citrus</span>
+                            <span class="feature-tag">Day Wear</span>
+                            <span class="feature-tag">Energetic</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-badge">LIMITED EDITION</div>
+                    <div class="product-img-container">
+                        <img src="{{ url_for('static', filename='images/foto_produk3.png') }}" alt="Green & Fresh" class="product-img">
+                        <div class="product-overlay">
+                            <button class="quick-view-btn">
+                                <i class="fas fa-eye"></i> Quick View
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-content">
+                        <h3>GREEN & FRESH</h3>
+                        <div class="product-category">EAU DE PARFUM</div>
+                        
+                        <div class="product-rating">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <span class="rating-count">(156 reviews)</span>
+                        </div>
+                        
+                        <p class="product-description">
+                            Ekspresi kemurnian alam dengan aroma daun hijau, mint, dan basil yang menyegarkan. Dikombinasikan dengan kayu cedar dan amber untuk memberikan kesan natural yang sophisticated. Wewangian yang sempurna bagi pencinta alam dan gaya hidup sehat. Membawa ketenangan dan kesegaran alami.
+                        </p>
+                        
+                        <div class="product-features">
+                            <span class="feature-tag">Natural</span>
+                            <span class="feature-tag">Green</span>
+                            <span class="feature-tag">Woody</span>
+                            <span class="feature-tag">Calming</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="articles" class="articles-section">
+            <div class="section-title">
+                <span class="sub-title">Wawasan Industri</span>
+                <h2>Artikel & Insight Terbaru</h2>
+                <p>Temukan tren terbaru, inovasi teknologi, dan wawasan mendalam dalam industri wewangian dan manufaktur.</p>
+            </div>
+
+            <div class="articles-grid">
+                <div class="article-card">
+                    <div class="article-badge">POPULER</div>
+                    <div class="article-img-container">
+                        <img src="{{ url_for('static', filename='images/artikel1.png') }}" alt="Inovasi Ekstraksi Aroma" class="article-img">
+                        <div class="article-overlay">
+                            <button class="read-more-btn">
+                                <i class="fas fa-book-open"></i> Baca Artikel
+                            </button>
+                        </div>
+                    </div>
+                    <div class="article-content">
+                        <div class="article-meta">
+                            <div class="article-date">
+                                <i class="far fa-calendar"></i> 15 Mar 2025
+                            </div>
+                            <div class="article-category">TEKNOLOGI</div>
+                        </div>
+                        <h3>Inovasi dalam Ekstraksi Aroma Alami dengan Teknologi Superkritis</h3>
+                        <p class="article-excerpt">
+                            Temukan revolusi dalam ekstraksi esensi alami menggunakan teknologi CO2 superkritis yang mempertahankan kemurnian dan potensi aroma tanpa residu kimia. Metode ini menghasilkan wewangian yang lebih autentik dan ramah lingkungan.
+                        </p>
+                        <div class="article-footer">
+                            <div class="article-author">
+                                <div class="author-avatar">DR</div>
+                                <span>Dr. Rina Wijaya</span>
+                            </div>
+                            <div class="article-stats">
+                                <div class="stat">
+                                    <i class="far fa-eye"></i> 2.4K
+                                </div>
+                                <div class="stat">
+                                    <i class="far fa-clock"></i> 5 min
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="article-card">
+                    <div class="article-badge">TREN</div>
+                    <div class="article-img-container">
+                        <img src="{{ url_for('static', filename='images/artikel2.png') }}" alt="Trend Parfum 2025" class="article-img">
+                        <div class="article-overlay">
+                            <button class="read-more-btn">
+                                <i class="fas fa-book-open"></i> Baca Artikel
+                            </button>
+                        </div>
+                    </div>
+                    <div class="article-content">
+                        <div class="article-meta">
+                            <div class="article-date">
+                                <i class="far fa-calendar"></i> 28 Feb 2025
+                            </div>
+                            <div class="article-category">TREN</div>
+                        </div>
+                        <h3>Trend Parfum 2025: Kembali ke Alam dengan Sentuhan Teknologi</h3>
+                        <p class="article-excerpt">
+                            Eksplorasi tren wewangian masa depan yang mengutamakan kesadaran lingkungan, keberlanjutan, dan transparansi. Konsumen modern menginginkan produk yang tidak hanya wangi tetapi juga etis dan traceable.
+                        </p>
+                        <div class="article-footer">
+                            <div class="article-author">
+                                <div class="author-avatar">AS</div>
+                                <span>Ahmad Surya</span>
+                            </div>
+                            <div class="article-stats">
+                                <div class="stat">
+                                    <i class="far fa-eye"></i> 1.8K
+                                </div>
+                                <div class="stat">
+                                    <i class="far fa-clock"></i> 4 min
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="article-card">
+                    <div class="article-badge">BRANDING</div>
+                    <div class="article-img-container">
+                        <img src="{{ url_for('static', filename='images/artikel3.png') }}" alt="Signature Scent" class="article-img">
+                        <div class="article-overlay">
+                            <button class="read-more-btn">
+                                <i class="fas fa-book-open"></i> Baca Artikel
+                            </button>
+                        </div>
+                    </div>
+                    <div class="article-content">
+                        <div class="article-meta">
+                            <div class="article-date">
+                                <i class="far fa-calendar"></i> 12 Feb 2025
+                            </div>
+                            <div class="article-category">BRANDING</div>
+                        </div>
+                        <h3>Pentingnya Signature Scent untuk Membangun Identitas Merek yang Kuat</h3>
+                        <p class="article-excerpt">
+                            Bagaimana aroma khas dapat memperkuat identitas merek dan menciptakan pengalaman pelanggan yang tak terlupakan. Studi kasus merek-merek luxury yang sukses membangun ekuitas melalui wewangian signature.
+                        </p>
+                        <div class="article-footer">
+                            <div class="article-author">
+                                <div class="author-avatar">LS</div>
+                                <span>Laura Santoso</span>
+                            </div>
+                            <div class="article-stats">
+                                <div class="stat">
+                                    <i class="far fa-eye"></i> 3.1K
+                                </div>
+                                <div class="stat">
+                                    <i class="far fa-clock"></i> 6 min
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -730,56 +1723,132 @@
             </div>
         </section>
 
-        <section id="tech">
+        <section id="tech" class="tech-section">
             <div class="section-title">
-                <span class="sub-title">Arsitektur</span>
+                <span class="sub-title">Arsitektur Teknologi</span>
                 <h2>Dibangun dengan Teknologi Modern</h2>
+                <p>Platform kami menggunakan teknologi terdepan untuk memastikan performa, skalabilitas, dan keamanan tertinggi bagi operasional manufaktur Anda.</p>
             </div>
 
             <div class="tabs-container">
                 <div class="tabs-nav">
-                    <button class="tab-btn active" onclick="openTab(event, 'backend')">Backend & Data</button>
-                    <button class="tab-btn" onclick="openTab(event, 'frontend')">Interface & UX</button>
-                    <button class="tab-btn" onclick="openTab(event, 'iot')">IoT Integration</button>
+                    <button class="tab-btn active" onclick="openTab(event, 'backend')">
+                        <i class="fas fa-server"></i> Backend & Data
+                    </button>
+                    <button class="tab-btn" onclick="openTab(event, 'frontend')">
+                        <i class="fas fa-desktop"></i> Interface & UX
+                    </button>
+                    <button class="tab-btn" onclick="openTab(event, 'iot')">
+                        <i class="fas fa-microchip"></i> IoT Integration
+                    </button>
                 </div>
 
                 <div id="backend" class="tab-pane active">
-                    <div>
-                        <h3 style="font-size: 1.8rem; margin-bottom: 15px; color: var(--navy-dark);">Pemrosesan Data Cepat</h3>
-                        <p style="color: #64748B; margin-bottom: 20px;">Menggunakan Python Flask untuk logika bisnis yang kuat dan MongoDB (NoSQL) untuk menangani volume data sensor yang besar dan tidak terstruktur dengan kecepatan tinggi.</p>
+                    <div class="tech-content">
+                        <h3>Pemrosesan Data Cepat & Skalabel</h3>
+                        <p>Arsitektur backend kami dirancang untuk menangani volume data sensor yang besar dengan performa optimal. Menggunakan teknologi terdepan untuk memastikan kecepatan dan keandalan sistem.</p>
+                        
+                        <div class="tech-highlights">
+                            <div class="tech-highlight">
+                                <i class="fas fa-bolt"></i>
+                                <span>Kecepatan pemrosesan data hingga 10.000 transaksi per detik</span>
+                            </div>
+                            <div class="tech-highlight">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Keamanan data terenkripsi end-to-end dengan protokol terbaru</span>
+                            </div>
+                            <div class="tech-highlight">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                                <span>Skalabilitas horizontal untuk mendukung pertumbuhan bisnis</span>
+                            </div>
+                        </div>
+                        
                         <div class="tech-list">
                             <span class="tech-badge"><i class="fab fa-python"></i> Python Flask</span>
                             <span class="tech-badge"><i class="fas fa-database"></i> MongoDB</span>
                             <span class="tech-badge"><i class="fas fa-server"></i> REST API</span>
+                            <span class="tech-badge"><i class="fas fa-code"></i> GraphQL</span>
+                            <span class="tech-badge"><i class="fas fa-cloud"></i> Redis Cache</span>
                         </div>
                     </div>
-                    <img src="https://images.unsplash.com/photo-1558494949-ef526b0042a0?auto=format&fit=crop&w=600&q=80" class="tab-img" alt="Server">
+                    <div class="tab-img-container">
+                        <img src="{{ url_for('static', filename='images/server.png') }}" alt="Server Backend" class="tab-img">
+                        <div class="tab-img-overlay">
+                            <div class="img-badge">High Performance Architecture</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="frontend" class="tab-pane">
-                    <div>
-                        <h3 style="font-size: 1.8rem; margin-bottom: 15px; color: var(--navy-dark);">Desain Intuitif</h3>
-                        <p style="color: #64748B; margin-bottom: 20px;">Antarmuka yang bersih dan responsif, dirancang untuk kemudahan penggunaan di tablet industri maupun desktop manajemen.</p>
+                    <div class="tech-content">
+                        <h3>Antarmuka Pengguna yang Intuitif</h3>
+                        <p>Desain responsif yang memberikan pengalaman pengguna terbaik di semua perangkat, dari tablet industri hingga desktop manajemen. Fokus pada kemudahan penggunaan dan efisiensi kerja.</p>
+                        
+                        <div class="tech-highlights">
+                            <div class="tech-highlight">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span>Desain responsif untuk tablet, desktop, dan perangkat mobile</span>
+                            </div>
+                            <div class="tech-highlight">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Dashboard real-time dengan visualisasi data interaktif</span>
+                            </div>
+                            <div class="tech-highlight">
+                                <i class="fas fa-bolt"></i>
+                                <span>Waktu muat halaman yang cepat dengan optimisasi performa</span>
+                            </div>
+                        </div>
+                        
                         <div class="tech-list">
                             <span class="tech-badge"><i class="fab fa-html5"></i> HTML5</span>
                             <span class="tech-badge"><i class="fab fa-css3"></i> Modern CSS</span>
                             <span class="tech-badge"><i class="fas fa-chart-pie"></i> Chart.js</span>
+                            <span class="tech-badge"><i class="fab fa-js"></i> Vanilla JavaScript</span>
+                            <span class="tech-badge"><i class="fas fa-paint-brush"></i> Custom UI Components</span>
                         </div>
                     </div>
-                    <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=600&q=80" class="tab-img" alt="UI Design">
+                    <div class="tab-img-container">
+                        <img src="{{ url_for('static', filename='images/ui_desaign.png') }}" class="tab-img" alt="UI Design">
+                        <div class="tab-img-overlay">
+                            <div class="img-badge">Responsive Design</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="iot" class="tab-pane">
-                    <div>
-                        <h3 style="font-size: 1.8rem; margin-bottom: 15px; color: var(--navy-dark);">Konektivitas Mesin</h3>
-                        <p style="color: #64748B; margin-bottom: 20px;">Mendukung protokol MQTT dan Modbus untuk mengambil data suhu, getaran, dan tekanan langsung dari PLC mesin produksi.</p>
+                    <div class="tech-content">
+                        <h3>Integrasi IoT & Konektivitas Mesin</h3>
+                        <p>Sistem kami terhubung langsung dengan mesin produksi melalui protokol industri standar untuk pemantauan real-time dan pengumpulan data yang akurat.</p>
+                        
+                        <div class="tech-highlights">
+                            <div class="tech-highlight">
+                                <i class="fas fa-sync-alt"></i>
+                                <span>Pengambilan data real-time dengan latency kurang dari 100ms</span>
+                            </div>
+                            <div class="tech-highlight">
+                                <i class="fas fa-plug"></i>
+                                <span>Kompatibilitas dengan berbagai PLC dan sistem kontrol industri</span>
+                            </div>
+                            <div class="tech-highlight">
+                                <i class="fas fa-network-wired"></i>
+                                <span>Jaringan komunikasi yang aman dan terenkripsi</span>
+                            </div>
+                        </div>
+                        
                         <div class="tech-list">
                             <span class="tech-badge"><i class="fas fa-wifi"></i> MQTT</span>
                             <span class="tech-badge"><i class="fas fa-microchip"></i> Arduino/ESP32</span>
                             <span class="tech-badge"><i class="fas fa-satellite-dish"></i> Sensors</span>
+                            <span class="tech-badge"><i class="fas fa-exchange-alt"></i> Modbus TCP</span>
+                            <span class="tech-badge"><i class="fas fa-shield-alt"></i> Secure Protocols</span>
                         </div>
                     </div>
-                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80" class="tab-img" alt="Chipset">
+                    <div class="tab-img-container">
+                        <img src="{{ url_for('static', filename='images/iot_chip.png') }}" class="tab-img" alt="Chipset IoT">
+                        <div class="tab-img-overlay">
+                            <div class="img-badge">Industrial IoT</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -855,7 +1924,6 @@
                     <ul class="footer-links">
                         <li><a href="/login">Login Portal</a></li>
                         <li><a href="#">Fitur</a></li>
-                        <li><a href="#">Harga</a></li>
                         <li><a href="#">API Docs</a></li>
                     </ul>
                 </div>
@@ -885,18 +1953,28 @@
             </div>
         </footer>
 
-    </div> <script>
-        // Mobile Sidebar Toggle
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const style = window.getComputedStyle(sidebar);
-            const transform = style.transform;
-            
-            if (transform === 'none' || transform === 'matrix(1, 0, 0, 1, 0, 0)') {
-                sidebar.style.transform = 'translateX(-100%)';
+    </div>
+
+    <script>
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
             } else {
-                sidebar.style.transform = 'translateX(0)';
+                navbar.classList.remove('scrolled');
             }
+        });
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const mobileNav = document.getElementById('mobileNav');
+            mobileNav.classList.toggle('active');
+        }
+
+        function closeMobileMenu() {
+            const mobileNav = document.getElementById('mobileNav');
+            mobileNav.classList.remove('active');
         }
 
         // Active Link Handling
@@ -904,11 +1982,6 @@
             const items = document.querySelectorAll('.nav-item');
             items.forEach(item => item.classList.remove('active'));
             element.classList.add('active');
-            
-            // On mobile, auto close sidebar after click
-            if (window.innerWidth <= 1024) {
-                document.getElementById('sidebar').style.transform = 'translateX(-100%)';
-            }
         }
 
         // Tab Logic
@@ -954,6 +2027,46 @@
         }, observerOptions);
 
         counters.forEach(counter => observer.observe(counter));
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const offsetTop = target.offsetTop - 80;
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Quick View Button Handler
+        document.querySelectorAll('.quick-view-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const productCard = this.closest('.product-card');
+                const productName = productCard.querySelector('h3').textContent;
+                const productDescription = productCard.querySelector('.product-description').textContent;
+                
+                // In a real implementation, this would open a modal with more details
+                alert(`Quick View: ${productName}\n\n${productDescription}\n\nFitur lengkap akan ditampilkan dalam modal detail produk.`);
+            });
+        });
+
+        // Read More Button Handler
+        document.querySelectorAll('.read-more-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const articleCard = this.closest('.article-card');
+                const articleTitle = articleCard.querySelector('h3').textContent;
+                
+                // In a real implementation, this would navigate to the full article
+                alert(`Membuka artikel: ${articleTitle}\n\nAnda akan diarahkan ke halaman artikel lengkap.`);
+            });
+        });
     </script>
 </body>
 </html>
